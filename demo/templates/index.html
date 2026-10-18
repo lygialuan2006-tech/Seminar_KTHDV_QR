@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>QR Seminar Demo</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="site-header">
+        <div>
+          <h1>QR Seminar Demo</h1>
+        </div>
+      </header>
+
+      <main class="grid">
+        <div class="col-left">
+          <section class="card" id="create-card">
+            <h2>Tạo QR</h2>
+            <form id="create-form">
+              <label class="field"
+                >Loại QR
+                <select id="type">
+                  <option value="EVENT_CHECKIN">EVENT_CHECKIN</option>
+                  <option value="DIGITAL_TICKET">DIGITAL_TICKET</option>
+                  <option value="PRODUCT">PRODUCT</option>
+                </select>
+              </label>
+              <label class="field"
+                >Mã tham chiếu
+                <input
+                  id="referenceId"
+                  value="TICKET-2026-0001"
+                  maxlength="100"
+                />
+              </label>
+              <label class="field"
+                >Nhãn
+                <input id="label" value="Seminar công nghệ" maxlength="200" />
+              </label>
+
+              <div id="product-fields" hidden>
+                <label class="field"
+                  >Mã lô
+                  <input id="batch" maxlength="50" placeholder="LOT-2026-01" />
+                </label>
+                <label class="field"
+                  >Thông tin
+                  <textarea
+                    id="info"
+                    maxlength="300"
+                    placeholder="Hướng dẫn sử dụng, bảo hành..."
+                  ></textarea>
+                </label>
+              </div>
+
+              <div id="digital-fields" hidden>
+                <label class="field"
+                  >Chủ vé
+                  <input
+                    id="holder"
+                    maxlength="100"
+                    placeholder="Nguyễn Văn B"
+                  />
+                </label>
+                <label class="field"
+                  >Số ghế
+                  <input id="seat" maxlength="20" placeholder="B12" />
+                </label>
+              </div>
+
+              <button class="btn" type="submit">Tạo QR</button>
+              <p id="create-error" class="error"></p>
+            </form>
+          </section>
+
+          <section class="card" id="checkin-card">
+            <h2>Check-in / tra cứu</h2>
+            <label class="field"
+              >Token
+              <input id="check-token" autocomplete="off" />
+            </label>
+            <div class="row">
+              <button id="checkin" class="btn">Check-in</button>
+              <button id="resolve" class="btn ghost">Tra cứu</button>
+            </div>
+            <p id="status" class="status"></p>
+          </section>
+        </div>
+
+        <section class="card col-center" id="result">
+          <p class="message" id="result-empty"></p>
+          <div id="result-body" hidden>
+            <a id="download" download="qr.png" title="Nhấn để tải QR">
+              <img id="qr-image" alt="QR code" />
+            </a>
+            <dl class="facts">
+              <dt>Token</dt>
+              <dd id="token"></dd>
+              <dt>Hạn dùng</dt>
+              <dd id="expires"></dd>
+            </dl>
+          </div>
+        </section>
+
+        <div class="col-right">
+          <section class="card" id="live-card" hidden>
+            <p class="counter">
+              <strong id="checked">0</strong>
+              <span>người đã check-in</span>
+            </p>
+            <ul class="people" id="people"></ul>
+          </section>
+        </div>
+      </main>
+    </div>
+    <script>
+      const el = (id) => document.getElementById(id);
+      let lastKey = null;
+
+      function showStatus(text, ok) {
+        const box = el("status");
+        box.textContent = text;
+        box.className = "status " + (ok ? "ok" : "bad");
+      }
+
+      async function onTypeChange(event) {
+        const type = el("type").value;
+        const prevType = event.target.dataset.prev;
+        event.target.dataset.prev = type;
+
+        el("product-fields").hidden = type !== "PRODUCT";
+        el("digital-fields").hidden = type !== "DIGITAL_TICKET";
+
+        if (prevType) {
+          await fetch("/api/reset?type=" + prevType, { method: "POST" }).catch(
+            () => {},
+          );
+        }
+
+        el("result").hidden = true;
+        el("result-body").hidden = true;
+        el("check-token").value = "";
+        showStatus("Đã reset lịch sử check-in", true);
+        lastKey = null;
+        loadStats();
+      }
+      el("type").addEventListener("change", onTypeChange);
+
+      async function loadStats() {
+        try {
+          const response = await fetch("/api/stats");
+          const data = await response.json();
+          el("checked").textContent = data.checkedIn;
+          const isProduct = el("type").value === "PRODUCT";
+          el("live-card").hidden = isProduct || data.checkedIn === 0;
+
+          const key = data.recent
+            .map((item) => item.referenceId + item.checkedInAt)
+            .join("|");
+          if (key === lastKey) return;
+          lastKey = key;
+
+          const list = el("people");
+          list.innerHTML = "";
+          data.recent.forEach((item, index) => {
+            const li = document.createElement("li");
+            if (index === 0) li.className = "is-new";
+            const order = document.createElement("span");
+            order.className = "index";
+            order.textContent = "#" + (data.recent.length - index);
+            const who = document.createElement("div");
+            who.className = "who";
+            who.textContent = item.label;
+            const small = document.createElement("small");
+            small.textContent = item.referenceId;
+            who.appendChild(small);
+            const time = document.createElement("span");
+            time.className = "time";
+            time.textContent = item.checkedInAt;
+            li.append(order, who, time);
+            list.appendChild(li);
+          });
+        } catch (error) {
+          el("checked").textContent = "0";
+          el("live-card").hidden = true;
+        }
+      }
+
+      el("create-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        el("create-error").textContent = "";
+        const type = el("type").value;
+        const payload = {
+          type,
+          referenceId: el("referenceId").value.trim(),
+          label: el("label").value.trim(),
+        };
+        if (type === "PRODUCT") {
+          payload.batch = el("batch").value.trim();
+          payload.info = el("info").value.trim();
+        }
+        if (type === "DIGITAL_TICKET") {
+          payload.holder = el("holder").value.trim();
+          payload.seat = el("seat").value.trim();
+        }
+        try {
+          const response = await fetch("/api/qr", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            el("create-error").textContent = data.error || "Tạo QR thất bại";
+            return;
+          }
+          const src = "data:image/png;base64," + data.imagePngBase64;
+          el("qr-image").src = src;
+          el("download").href = src;
+          el("token").textContent = data.token;
+          el("expires").textContent = new Date(data.expiresAt).toLocaleString(
+            "vi-VN",
+          );
+          el("result-body").hidden = false;
+          el("result-empty").hidden = true;
+          el("check-token").value = data.token;
+          showStatus("", true);
+          loadStats();
+        } catch (error) {
+          el("create-error").textContent = "Không gọi được API";
+        }
+      });
+
+      el("checkin").addEventListener("click", async () => {
+        const token = el("check-token").value.trim();
+        if (!token) {
+          showStatus("Nhập token trước", false);
+          return;
+        }
+        const response = await fetch("/api/check-ins", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          showStatus("CHECKED_IN · " + data.referenceId, true);
+          loadStats();
+        } else {
+          showStatus(data.error || "Check-in thất bại", false);
+        }
+      });
+
+      el("resolve").addEventListener("click", async () => {
+        const token = el("check-token").value.trim();
+        if (!token) {
+          showStatus("Nhập token trước", false);
+          return;
+        }
+        const response = await fetch(
+          "/api/qr/resolve/" + encodeURIComponent(token),
+        );
+        const data = await response.json();
+        if (response.ok) {
+          showStatus(
+            data.status + " · " + data.type + " · " + data.referenceId,
+            true,
+          );
+        } else {
+          showStatus(data.error || "Không tìm thấy token", false);
+        }
+      });
+
+      // Reload trang = phiên demo mới
+      (async function init() {
+        el("type").dataset.prev = el("type").value;
+
+        // Chỉ reset nếu là phiên mới (tab mới), không phải F5
+        if (!sessionStorage.getItem("qr-demo-session")) {
+          await fetch("/api/reset", { method: "POST" }).catch(() => {});
+          sessionStorage.setItem("qr-demo-session", "1");
+        }
+
+        lastKey = null;
+        loadStats();
+      })();
+      setInterval(loadStats, 300);
+    </script>
+  </body>
+</html>

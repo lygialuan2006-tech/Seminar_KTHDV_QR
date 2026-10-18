@@ -1,0 +1,458 @@
+/* Styles dùng chung cho mọi trang (index, ticket, error) */
+
+:root {
+  --ink: #111111;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --ok: #15803d;
+  --ok-bg: #ecfdf3;
+  --bad: #b91c1c;
+  --radius: 14px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #fff;
+  color: var(--ink);
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+p,
+dl,
+dd {
+  margin: 0;
+}
+
+a {
+  color: var(--ink);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- layout ---------- */
+.page {
+  height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 0 0 auto;
+}
+
+.site-header h1 {
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+.grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+grid-template-columns: minmax(240px, 0.9fr) minmax(0, 1.6fr) minmax(240px, 0.9fr);  align-items: stretch;
+}
+
+.col-left,
+.col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.col-left {
+  grid-column: 1;
+}
+
+/* Cột giữa: QR chiếm trọn chiều cao */
+.col-center {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#download {
+  display: block;
+  cursor: pointer;
+  line-height: 0;
+}
+
+#qr-image {
+  display: block;  
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  background: #fff;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+#result .facts {
+  flex: 0 0 auto;
+  text-align: center;
+  font-size: 12px;
+}
+
+.col-right {
+  grid-column: 3;
+}
+
+#live-card {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#live-card .people {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+@media (max-width: 900px) {
+  html,
+  body {
+    overflow: auto;
+  }
+  .page {
+    height: auto;
+    min-height: 100vh;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .col-left,
+  .col-right,
+  .col-center {
+    grid-column: 1;
+    overflow: visible;
+  }
+  .col-center {
+    min-height: 60vh;
+  }
+}
+
+/* ---------- card ---------- */
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 20px;
+}
+
+#live-card {
+  border: none;
+}
+
+#result {
+  border: none;
+  padding: 0; 
+}
+.card h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+/* ---------- form ---------- */
+.field {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.field input,
+.field select,
+.field textarea {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.field textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+/* ---------- button ---------- */
+.btn {
+  padding: 11px 18px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn.ghost {
+  background: #fff;
+  color: var(--ink);
+}
+
+.btn:disabled {
+  background: #f3f4f6;
+  border-color: var(--line);
+  color: #9ca3af;
+  cursor: default;
+}
+
+/* ---------- text states ---------- */
+.error {
+  min-height: 18px;
+  margin-top: 10px;
+  color: var(--bad);
+  font-size: 13px;
+}
+
+.status {
+  min-height: 18px;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.status.ok {
+  color: var(--ok);
+}
+
+.status.bad {
+  color: var(--bad);
+}
+
+/* ---------- QR result ---------- */
+.facts {
+  font-size: 12px;
+}
+
+.facts dt {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.facts dd {
+  margin-top: 2px;
+  word-break: break-all;
+}
+
+/* ---------- live check-in ---------- */
+.counter {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.counter strong {
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.counter span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.people {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.people li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.people .index {
+  width: 24px;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.people .who {
+  flex: 1;
+  min-width: 0;
+}
+
+.people .who small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.people .time {
+  color: var(--muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.people li.is-new {
+  animation: push-in 0.28s ease;
+}
+
+@keyframes push-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- ticket / error page ---------- */
+.center {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.ticket {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 28px;
+}
+
+.kicker {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ticket h1 {
+  margin: 10px 0 6px;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.ticket .ref {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.badge {
+  display: inline-block;
+  margin: 22px 0 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.badge.ok {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.badge.used {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+.ticket .facts {
+  margin-top: 18px;
+  font-size: 13px;
+}
+
+.ticket .facts dt {
+  color: var(--muted);
+}
+
+.ticket .facts dd {
+  margin-top: 4px;
+}
+
+.ticket .btn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.message {
+  min-height: 18px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.note {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}

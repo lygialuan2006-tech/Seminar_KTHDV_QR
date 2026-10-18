@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ credential.label }}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="center">
+    <main class="ticket">
+      <p class="kicker">{{ type_label }}</p>
+      <h1>{{ credential.label }}</h1>
+      <p class="ref">Mã: {{ credential.reference_id }}</p>
+
+      {% if credential.qr_type.value == 'PRODUCT' %}
+      <dl class="facts">
+        {% if credential.batch %}
+        <dt>Mã lô</dt>
+        <dd>{{ credential.batch }}</dd>
+        {% endif %} {% if credential.info %}
+        <dt>Thông tin</dt>
+        <dd>{{ credential.info }}</dd>
+        {% endif %}
+        <dt>Hạn dùng</dt>
+        <dd>{{ expires_at }}</dd>
+      </dl>
+      <div class="badge ok">Đang hoạt động</div>
+      {% else %}
+      <div id="status" class="badge {{ 'used' if used_at else 'ok' }}">
+        {{ 'Đã sử dụng' if used_at else 'Hợp lệ' }}
+      </div>
+      <dl class="facts">
+        {% if credential.holder %}
+        <dt>Chủ vé</dt>
+        <dd>{{ credential.holder }}</dd>
+        {% endif %} {% if credential.seat %}
+        <dt>Số ghế</dt>
+        <dd>{{ credential.seat }}</dd>
+        {% endif %}
+        <dt>Hạn dùng</dt>
+        <dd>{{ expires_at }}</dd>
+      </dl>
+      {% if used_at %}
+      <p class="message">Check-in lúc {{ used_at }}</p>
+      {% else %}
+      <button id="checkin" class="btn" data-token="{{ credential.token }}">
+        Check-in
+      </button>
+      <p id="message" class="message"></p>
+      {% endif %} {% endif %}
+    </main>
+    <script>
+      const button = document.getElementById("checkin");
+      if (button) {
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          const response = await fetch("/api/check-ins", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: button.dataset.token }),
+          });
+          const data = await response.json();
+          const badge = document.getElementById("status");
+          const message = document.getElementById("message");
+          if (response.ok) {
+            const time = new Date(data.checkedInAt).toLocaleTimeString(
+              "vi-VN",
+              {
+                hour: "2-digit",
+                minute: "2-digit",
+              },
+            );
+            badge.textContent = "Đã sử dụng";
+            badge.className = "badge used";
+            message.textContent = "Check-in lúc " + time;
+            button.remove();
+            return;
+          }
+          message.textContent = data.error || "Check-in thất bại";
+          if (response.status === 409) {
+            badge.textContent = "Đã sử dụng";
+            badge.className = "badge used";
+            button.remove();
+          } else {
+            button.disabled = false;
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
