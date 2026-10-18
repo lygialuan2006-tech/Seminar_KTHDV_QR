@@ -7,6 +7,7 @@ import io
 import os
 import secrets
 import threading
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from enum import Enum
@@ -55,7 +56,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> FastAPI:
     app = FastAPI(title="QR Seminar Demo")
     app.state.config = {
         "QR_PUBLIC_BASE_URL": os.environ.get(
-            "QR_PUBLIC_BASE_URL", "http://localhost:8080"
+            "QR_PUBLIC_BASE_URL", "http://localhost:8000"
         ).rstrip("/"),
         "QR_VALIDITY_SECONDS": int(
             os.environ.get("QR_VALIDITY_SECONDS", str(24 * 60 * 60))
@@ -214,17 +215,22 @@ def start_ngrok(port: int) -> str | None:
     """Mở tunnel công khai. Cần chạy `ngrok config add-authtoken ...` trước."""
     try:
         from pyngrok import ngrok
-
-        return ngrok.connect(port, "http").public_url
-    except Exception as error:
-        print(f"[ngrok] Không mở được tunnel: {error}")
+    except ImportError:
+        print("[ngrok] Chưa cài pyngrok: pip install pyngrok")
         return None
+    for attempt in range(3):
+        try:
+            return ngrok.connect(port, "http").public_url
+        except Exception as error:
+            print(f"[ngrok] Lỗi lần {attempt + 1}: {error}")
+            time.sleep(2)
+    return None
 
 
 app = create_app()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "8080"))
+    port = int(os.environ.get("PORT", "8000"))
     # Đặt USE_NGROK=0 để tắt ngrok
     if os.environ.get("USE_NGROK", "1") == "1":
         public_url = start_ngrok(port)

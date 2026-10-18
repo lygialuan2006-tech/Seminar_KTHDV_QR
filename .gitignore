@@ -1,0 +1,14 @@
+# Tài liệu, slide và asset chỉ để nộp, không đưa vào git
+docs/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

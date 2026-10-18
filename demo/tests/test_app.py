@@ -32,7 +32,7 @@ def test_generate_resolve_and_serve_scannable_png(client):
     image = Image.open(io.BytesIO(png))
     assert image.format == "PNG"
     assert image.width > 0
-    image_url = payload["imageUrl"].replace("http://localhost:8080", "")
+    image_url = payload["imageUrl"].replace("http://localhost:8000", "")
     assert client.get(image_url).headers["content-type"] == "image/png"
     resolved = client.get(f"/api/qr/resolve/{payload['token']}")
     assert resolved.status_code == 200
