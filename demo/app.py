@@ -340,7 +340,7 @@ app = create_app()
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
     # Đặt USE_NGROK=0 để tắt ngrok
-    if os.environ.get("USE_NGROK", "0") == "1":
+    if os.environ.get("USE_NGROK", "1") == "1":
         public_url = start_ngrok(port)
         if public_url:
             app.state.config["QR_PUBLIC_BASE_URL"] = public_url

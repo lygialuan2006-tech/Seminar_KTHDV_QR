@@ -223,6 +223,7 @@
           el("expires").textContent = new Date(data.expiresAt).toLocaleString(
             "vi-VN",
           );
+          el("result").hidden = false;
           el("result-body").hidden = false;
           el("result-empty").hidden = true;
           el("check-token").value = data.token;
