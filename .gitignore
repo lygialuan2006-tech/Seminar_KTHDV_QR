@@ -1,4 +1,4 @@
-docs/
+/temp_docs
 
 __pycache__/
 *.py[cod]
