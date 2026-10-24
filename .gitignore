@@ -4,6 +4,12 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+demo/.env
+demo/attendance.db
+demo/*.sqlite3
+demo/__pycache__/
+demo/migrations/__pycache__/
+demo/.pytest_cache/
 
 .vscode/
 .idea/

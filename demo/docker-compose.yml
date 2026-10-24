@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: attendance
+      POSTGRES_USER: attendance
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U attendance -d attendance"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  web:
+    build: .
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://attendance:${POSTGRES_PASSWORD}@db:5432/attendance
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env}
+      SESSION_HTTPS_ONLY: "1"
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost}
+      QR_PUBLIC_BASE_URL: ${QR_PUBLIC_BASE_URL:?Set QR_PUBLIC_BASE_URL to your HTTPS domain in .env}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres_data:

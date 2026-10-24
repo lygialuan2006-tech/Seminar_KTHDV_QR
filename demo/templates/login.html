@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Đăng nhập · QR Seminar</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body class="auth-page">
+    <main class="auth-card">
+      <a class="auth-brand" href="/" aria-label="QR Seminar">
+        <span class="brand-mark" aria-hidden="true">QR</span>
+        <span>SECURE QR ATTENDANCE</span>
+      </a>
+      <div class="auth-heading">
+        <p class="auth-kicker">KHU VỰC NHÂN SỰ</p>
+        <h1>Chào mừng trở lại</h1>
+        <p class="auth-subtitle">Đăng nhập để quản lý vé và điểm danh sự kiện.</p>
+      </div>
+      <form id="login-form" class="auth-form">
+        <label class="auth-field" for="username">
+          <span>Tên đăng nhập</span>
+          <input id="username" name="username" autocomplete="username" required autofocus placeholder="Nhập tên đăng nhập" />
+        </label>
+        <label class="auth-field" for="password">
+          <span>Mật khẩu</span>
+          <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Nhập mật khẩu" />
+        </label>
+        <p id="error" class="auth-error" role="alert" hidden></p>
+        <button class="auth-submit" type="submit">Đăng nhập <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="auth-note"><span aria-hidden="true">⌑</span><p>Phiên đăng nhập được bảo vệ. Chỉ sử dụng trên thiết bị đáng tin cậy.</p></div>
+      <p class="auth-footer">QR Seminar Demo <span>·</span> Secure QR Attendance</p>
+    </main>
+    <script>
+      const form = document.getElementById('login-form');
+      const errorBox = document.getElementById('error');
+      let csrfToken = '';
+      fetch('/api/csrf').then(r => r.json()).then(data => { csrfToken = data.csrfToken; }).catch(() => {
+        errorBox.textContent = 'Không kết nối được máy chủ. Hãy tải lại trang.';
+        errorBox.hidden = false;
+      });
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        errorBox.hidden = true;
+        const button = form.querySelector('button');
+        button.disabled = true;
+        button.classList.add('is-loading');
+        try {
+          if (!csrfToken) throw new Error('Chưa thể kết nối bảo mật. Hãy tải lại trang.');
+          const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+            body: JSON.stringify({ username: form.username.value, password: form.password.value })
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(response.status === 401 ? 'Tên đăng nhập hoặc mật khẩu không đúng.' : (data.detail || 'Đăng nhập thất bại.'));
+          window.location.assign(data.role === 'admin' ? '/' : '/scanner');
+        } catch (error) {
+          errorBox.textContent = error.message || 'Không kết nối được máy chủ.';
+          errorBox.hidden = false;
+          button.disabled = false;
+          button.classList.remove('is-loading');
+        }
+      });
+    </script>
+  </body>
+</html>

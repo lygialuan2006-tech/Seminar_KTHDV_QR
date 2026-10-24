@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Đăng ký vé · QR Seminar</title>
+    <link rel="stylesheet" href="/static/styles.css?v=20261024-ios1" />
+    <style>
+      html { -webkit-text-size-adjust: 100%; }
+      *, *::before, *::after { box-sizing: border-box; }
+      body.confirm-page { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px 16px; background: #f6f7f8; color: #17191d; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .confirm-card { width: min(100%, 460px); padding: 32px 28px; border: 1px solid #e7e9ed; border-radius: 18px; background: #fff; box-shadow: 0 18px 55px rgb(17 24 39 / 7%); }
+      .confirm-icon { width: 48px; height: 48px; display: grid; place-items: center; margin: 0 auto 18px; border-radius: 50%; background: #eef8f0; color: #18743a; font-size: 24px; font-weight: 700; }
+      .confirm-card .eyebrow { margin: 0; color: #687386; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-align: center; }
+      .confirm-card h1 { margin: 12px 0; font-size: 27px; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+      .badge { display: block; margin: 12px 0; color: #18743a; text-align: center; }
+      .confirm-copy, .note { color: #687386; font-size: 15px; line-height: 1.55; }
+      .confirm-copy { margin: 20px 0; }
+      .contact-form { margin-top: 20px; }
+      .confirm-field { display: grid; gap: 7px; margin-bottom: 15px; color: #303846; font-size: 14px; font-weight: 600; }
+      .confirm-field input { display: block; width: 100%; min-width: 0; min-height: 48px; padding: 0 13px; border: 1px solid #dfe3e8; border-radius: 9px; background: #fff; color: #17191d; font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .confirm-field input:focus { border-color: #343a40; outline: 3px solid rgb(17 24 39 / 8%); }
+      .confirm-button { width: 100%; min-height: 50px; padding: 10px 16px; border: 0; border-radius: 10px; background: #111; color: #fff; font: 600 16px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; cursor: pointer; }
+      .confirm-button:disabled { opacity: .65; }
+      .confirm-result { min-height: 22px; margin-top: 14px; color: #687386; font-size: 14px; line-height: 1.5; }
+      .confirm-result.good { color: #18743a; }
+      .confirm-result.bad { color: #b42318; }
+      .note { margin-top: 20px; font-size: 13px; }
+      .ticket-qr { margin-top: 22px; padding-top: 18px; border-top: 1px solid #e7e9ed; text-align: center; }
+      .ticket-qr img { display: block; width: min(100%, 260px); height: auto; margin: 14px auto; image-rendering: pixelated; }
+      .ticket-qr a { color: #111; font-weight: 600; }
+      @media (max-width: 480px) { body.confirm-page { padding: 16px 12px; } .confirm-card { padding: 25px 19px; border-radius: 15px; } .confirm-card h1 { font-size: 25px; } }
+    </style>
+  </head>
+  <body class="confirm-page">
+    <main class="confirm-card">
+      <div class="confirm-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">VÉ ĐIỆN TỬ</p>
+      <h1>{{ ticket.eventName }}</h1>
+      {% if ticket.status == 'VALID' %}
+        <p class="badge ok">Vé hợp lệ · Chưa sử dụng</p>
+        {% if ticket.contactSaved %}
+          <p class="confirm-copy">&#272;&#259;ng k&#253; th&#224;nh c&#244;ng. H&#227;y l&#432;u m&#227; QR v&#233; v&#224; &#273;&#432;a cho nh&#226;n vi&#234;n qu&#233;t t&#7841;i c&#7893;ng.</p>
+          <section class="ticket-qr" aria-label="V&#233; QR c&#7911;a b&#7841;n">
+            <strong>M&#227; v&#233;: {{ ticket.referenceId }}</strong>
+            <img src="data:image/png;base64,{{ ticket.qrImagePngBase64 }}" alt="QR v&#233; &#273;i&#7879;n t&#7917;" />
+            <a href="data:image/png;base64,{{ ticket.qrImagePngBase64 }}" download="ve-{{ ticket.referenceId }}.png">L&#432;u &#7843;nh QR v&#233;</a>
+          </section>
+        {% else %}
+          <p class="confirm-copy">Điền email và số điện thoại để hoàn tất đăng ký vé. Nhân viên sẽ quét vé này tại cổng để xác nhận tham dự.</p>
+          <form id="contact-form" class="contact-form">
+            <label class="confirm-field">Email
+              <input id="contact-email" type="email" autocomplete="email" inputmode="email" maxlength="254" required placeholder="ban@example.com" />
+            </label>
+            <label class="confirm-field">Số điện thoại
+              <input id="contact-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="24" required placeholder="0912 345 678 hoặc 84912 345 678" aria-describedby="phone-hint" />
+              <span id="phone-hint" class="note">Nhập số di động Việt Nam 10 số; có thể dùng đầu 0, 84 hoặc +84 và thêm khoảng trắng/dấu gạch.</span>
+            </label>
+            <button id="save-contact" class="confirm-button" type="submit">Lưu thông tin đăng ký</button>
+            <p id="contact-result" class="confirm-result" role="status" aria-live="polite"></p>
+          </form>
+          <p class="note">Thông tin được lưu cùng vé để ban tổ chức liên hệ về sự kiện.</p>
+        {% endif %}
+      {% elif ticket.status == 'USED' %}
+        <p class="badge used">Vé đã được sử dụng</p>
+        <p class="confirm-copy">Nhân viên đã xác nhận vé này tại cổng.</p>
+      {% elif ticket.status == 'EXPIRED' %}
+        <p class="badge used">Vé đã hết hạn</p>
+      {% else %}
+        <p class="badge used">Vé đã bị thu hồi</p>
+      {% endif %}
+      <p class="note">Hạn dùng: {{ ticket.expiresAt }}</p>
+    </main>
+    {% if ticket.status == 'VALID' and not ticket.contactSaved %}
+      <script>
+        const form = document.getElementById('contact-form');
+        const button = document.getElementById('save-contact');
+        const result = document.getElementById('contact-result');
+        const emailInput = document.getElementById('contact-email');
+        const phoneInput = document.getElementById('contact-phone');
+        const publicId = location.pathname.split('/').filter(Boolean).pop();
+        let csrfToken = '';
+        const showResult = (text, ok = false) => {
+          result.textContent = text;
+          result.className = `confirm-result ${ok ? 'good' : 'bad'}`;
+        };
+        fetch('/api/csrf', { headers: { 'ngrok-skip-browser-warning': '1' }, cache: 'no-store' })
+          .then(async response => {
+            if (!response.ok) throw new Error(`Máy chủ trả về lỗi ${response.status}.`);
+            const data = await response.json();
+            csrfToken = data.csrfToken || '';
+            if (!csrfToken) throw new Error('Không tạo được phiên đăng ký. Hãy tải lại trang.');
+          })
+          .catch(error => showResult(error.message || 'Không kết nối được máy chủ.'));
+        form.addEventListener('submit', async event => {
+          event.preventDefault();
+          const email = emailInput.value.trim();
+          const phone = phoneInput.value.trim();
+          let compactPhone = phone.replace(/[\s().-]/g, '');
+          const phoneMatch = compactPhone.match(/^0([35789]\d{8})$/)
+            || compactPhone.match(/^(?:\+84|84|0084)(?:0)?([35789]\d{8})$/);
+          const validPhone = Boolean(phoneMatch);
+          const normalizedPhone = phoneMatch ? `+84${phoneMatch[1]}` : '';
+          const validEmail = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+$/i.test(email)
+            && !email.split('@')[0].startsWith('.') && !email.split('@')[0].endsWith('.') && !email.split('@')[0].includes('..');
+          emailInput.setCustomValidity(validEmail ? '' : 'Nhập email đúng định dạng, ví dụ ban@example.com.');
+          phoneInput.setCustomValidity(validPhone ? '' : 'Nhập số di động Việt Nam hợp lệ, ví dụ 0912345678, +84912345678 hoặc +84 (0) 912 345 678.');
+          if (!form.reportValidity()) return;
+          if (!csrfToken) return showResult('Chưa kết nối được máy chủ. Hãy tải lại trang rồi thử lại.');
+          button.disabled = true;
+          showResult('Đang lưu thông tin…', true);
+          try {
+            const response = await fetch(`/api/tickets/public/${encodeURIComponent(publicId)}/contact`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, 'ngrok-skip-browser-warning': '1' },
+              body: JSON.stringify({ email, phone: normalizedPhone })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || data.detail || `Không lưu được thông tin (${response.status}).`);
+            showResult('\u0110\u0103ng k\u00fd th\u00e0nh c\u00f4ng. H\u00e3y l\u01b0u m\u00e3 QR v\u00e9 v\u00e0 \u0111\u01b0a cho nh\u00e2n vi\u00ean qu\u00e9t t\u1ea1i c\u1ed5ng.', true);
+            form.hidden = true;
+            const ticketQr = document.createElement('section');
+            ticketQr.className = 'ticket-qr';
+            ticketQr.setAttribute('aria-label', 'V\u00e9 QR c\u1ee7a b\u1ea1n');
+            const code = document.createElement('strong');
+            code.textContent = `M\u00e3 v\u00e9: ${data.referenceId}`;
+            const image = document.createElement('img');
+            image.src = `data:image/png;base64,${data.imagePngBase64}`;
+            image.alt = 'QR v\u00e9 \u0111i\u1ec7n t\u1eed';
+            const download = document.createElement('a');
+            download.href = image.src;
+            download.download = `ve-${data.referenceId}.png`;
+            download.textContent = 'L\u01b0u \u1ea3nh QR v\u00e9';
+            ticketQr.append(code, image, download);
+            form.parentElement.insertBefore(ticketQr, form.nextSibling);
+          } catch (error) {
+            showResult(error.message || 'Không kết nối được máy chủ.');
+            button.disabled = false;
+          }
+        });
+      </script>
+    {% endif %}
+  </body>
+</html>

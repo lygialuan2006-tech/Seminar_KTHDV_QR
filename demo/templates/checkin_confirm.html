@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <title>Xác nhận điểm danh</title>
+    <link rel="stylesheet" href="/static/styles.css?v=ios-mobile-1" />
+  <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body.confirm-page { min-height: 100vh; min-height: 100svh; margin: 0; display: grid; place-items: center; padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: #f6f7f8; color: #17191d; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .confirm-card { width: min(100%, 460px); margin: auto; padding: 32px 28px; border: 1px solid #e7e9ed; border-radius: 18px; background: #fff; box-shadow: 0 18px 55px rgb(17 24 39 / 7%); text-align: center; }
+      .confirm-icon { width: 48px; height: 48px; display: grid; place-items: center; margin: 0 auto 18px; border-radius: 50%; background: #eef8f0; color: #18743a; font-size: 24px; font-weight: 700; }
+      .eyebrow { margin: 0 0 6px; color: #687386; font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+      .confirm-card h1 { margin: 8px 0 0; font-size: 27px; letter-spacing: -.035em; }
+      .confirm-event { margin: 13px 0 0; font-size: 17px; font-weight: 650; overflow-wrap: anywhere; }
+      .confirm-copy { margin: 20px 0; color: #687386; font-size: 15px; line-height: 1.6; }
+      .confirm-field { display: grid; gap: 8px; margin: 0 0 14px; color: #303846; font-size: 14px; font-weight: 600; text-align: left; }
+      .confirm-field input { width: 100%; min-height: 52px; padding: 0 13px; border: 1px solid #dfe3e8; border-radius: 9px; background: #fff; color: #17191d; font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-appearance: none; appearance: none; }
+      .confirm-field input:focus { border-color: #343a40; outline: 3px solid rgb(17 24 39 / 8%); }
+      .confirm-button { width: 100%; min-height: 54px; border: 0; border-radius: 10px; background: #111; color: #fff; font: 650 16px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; cursor: pointer; touch-action: manipulation; }
+      .confirm-button:disabled { opacity: .65; }
+      .confirm-result { min-height: 40px; margin: 15px 0 0; color: #687386; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+      .confirm-result.good { color: #18743a; font-weight: 650; }
+      .confirm-result.bad { color: #b42318; }
+      @media (max-width: 480px) { body.confirm-page { place-items: start center; } .confirm-card { padding: 26px 20px; border-radius: 16px; } .confirm-card h1 { font-size: 25px; } }
+    </style>
+  </head>
+  <body class="confirm-page">
+    <main class="confirm-card">
+      <div class="confirm-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">QR SEMINAR · ĐIỂM DANH</p>
+      <h1>Xác nhận tham dự</h1>
+      <p class="confirm-event">{{ ticket.eventName }}</p>
+      <p class="confirm-copy">Nhập mã sinh viên của bạn để điểm danh cho sự kiện.{% if ticket.locationRequired %} Trình duyệt sẽ yêu cầu vị trí để kiểm tra bạn đang ở trong khu vực cho phép.{% endif %}</p>
+      <label class="confirm-field">Mã sinh viên<input id="reference" autocomplete="off" required placeholder="Nhập mã sinh viên" /></label>
+      <button id="confirm" class="confirm-button" type="button">Xác nhận check-in</button>
+      <p id="result" class="confirm-result" role="status" aria-live="polite">Mỗi mã sinh viên chỉ điểm danh một lần.{% if ticket.locationRequired %} Vị trí chỉ dùng để kiểm tra khoảng cách.{% endif %}</p>
+    </main>
+    <script>
+      const button = document.getElementById('confirm');
+      const result = document.getElementById('result');
+      const locationRequired = {{ 'true' if ticket.locationRequired else 'false' }};
+      let csrfToken = '';
+      const show = (message, kind = '') => { result.textContent = message; result.className = `confirm-result ${kind}`; };
+      fetch('/api/csrf', { headers: { 'ngrok-skip-browser-warning': '1' }, cache: 'no-store' })
+        .then(async response => {
+          if (!response.ok) throw new Error(`Máy chủ trả về lỗi ${response.status}.`);
+          const data = await response.json();
+          if (!data.csrfToken) throw new Error('Máy chủ chưa cấp được phiên điểm danh.');
+          csrfToken = data.csrfToken;
+        })
+        .catch(error => show(`${error.message || 'Không kết nối được máy chủ.'} Hãy kiểm tra mạng rồi tải lại trang.`, 'bad'));
+      button.addEventListener('click', () => {
+        if (!csrfToken) return show('Chưa kết nối được. Hãy tải lại trang rồi thử lại.', 'bad');
+        if (!document.getElementById('reference').value.trim()) return show('Hãy nhập mã sinh viên.', 'bad');
+        button.disabled = true;
+        const sendCheckin = async (coords = null) => {
+          try {
+            show(locationRequired ? 'Đang kiểm tra vị trí…' : 'Đang ghi nhận điểm danh…');
+            const payload = { eventPublicId: location.pathname.split('/').filter(Boolean).pop(), studentId: document.getElementById('reference').value.trim() };
+            if (coords) { payload.latitude = coords.latitude; payload.longitude = coords.longitude; }
+            const response = await fetch('/api/event-self-check-ins', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken, 'ngrok-skip-browser-warning': '1' },
+              body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Không thể xác nhận điểm danh.');
+            show(`Điểm danh thành công · ${data.eventName}`, 'good');
+            button.textContent = 'Đã check-in';
+          } catch (error) {
+            show(error.message || 'Không kết nối được máy chủ.', 'bad');
+            button.disabled = false;
+          }
+        };
+        if (!locationRequired) return sendCheckin();
+        if (!navigator.geolocation) { button.disabled = false; return show('Thiết bị hoặc trình duyệt không hỗ trợ định vị.', 'bad'); }
+        navigator.geolocation.getCurrentPosition(({ coords }) => sendCheckin(coords), error => {
+          const message = error.code === 1 ? 'Bạn cần cho phép truy cập vị trí để check-in.' : 'Không lấy được vị trí. Hãy bật GPS và thử lại.';
+          show(message, 'bad');
+          button.disabled = false;
+        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+      });
+    </script>
+  </body>
+</html>
