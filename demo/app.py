@@ -605,6 +605,9 @@ def create_app(test_config: dict[str, Any] | None = None) -> FastAPI:
         body = await _read_json(request)
         if not isinstance(body, dict) or not isinstance(body.get("token"), str): raise HTTPException(400, "QR payload is required")
         token = body["token"].strip()
+        selected_event_id = body.get("eventId")
+        if selected_event_id is not None and (isinstance(selected_event_id, bool) or not isinstance(selected_event_id, int)):
+            raise HTTPException(400, "Invalid selected event")
         public_id = _ticket_public_id(token, cfg["QR_PUBLIC_BASE_URL"])
         if not token or len(token) > 512 or (not public_id and ("." in token or "://" in token)):
             raise HTTPException(400, "Malformed QR payload")
@@ -617,6 +620,8 @@ def create_app(test_config: dict[str, Any] | None = None) -> FastAPI:
             if ticket.event_id is None: raise HTTPException(400, "Ticket has no event")
             event = session.get(Event, ticket.event_id)
             if not event or not event.active: raise HTTPException(404, "Event not found or inactive")
+            if selected_event_id is not None and selected_event_id != event.id:
+                raise HTTPException(403, "Ticket belongs to a different event")
             if event.starts_at and _utc(event.starts_at) > now: raise HTTPException(403, "Event check-in has not opened yet")
             if event.ends_at and _utc(event.ends_at) <= now: raise HTTPException(410, "Event check-in is closed")
             if user.role != "admin" and session.scalar(select(EventStaff.id).where(EventStaff.user_id == user.id, EventStaff.event_id == ticket.event_id)) is None:
