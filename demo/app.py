@@ -153,6 +153,7 @@ def create_staff(
     role: str,
     event_id: int | None = None,
     database_url: str | None = None,
+    all_events: bool = False,
 ) -> None:
     url = database_url or os.getenv(
         "DATABASE_URL", f"sqlite:///{ROOT / 'attendance.db'}"
@@ -174,9 +175,20 @@ def create_staff(
         session.add(user)
         session.flush()
         if role == "staff":
-            if event_id is None or session.get(Event, event_id) is None:
-                raise SystemExit("Staff account requires an existing --event-id")
-            session.add(EventStaff(user_id=user.id, event_id=event_id))
+            if all_events:
+                events = session.scalars(
+                    select(Event).where(Event.active.is_(True))
+                ).all()
+                if not events:
+                    raise SystemExit("Staff account requires at least one active event")
+                session.add_all(
+                    EventStaff(user_id=user.id, event_id=event.id)
+                    for event in events
+                )
+            else:
+                if event_id is None or session.get(Event, event_id) is None:
+                    raise SystemExit("Staff account requires an existing --event-id")
+                session.add(EventStaff(user_id=user.id, event_id=event_id))
         print(f"Created {role} account: {username.lower()}")
 
 
@@ -276,6 +288,11 @@ if __name__ == "__main__":
     parser.add_argument("--role", choices=("admin", "staff"), default="admin")
     parser.add_argument("--event-id", type=int)
     parser.add_argument(
+        "--all-events",
+        action="store_true",
+        help="assign a staff account to every active event",
+    )
+    parser.add_argument(
         "--ngrok", action="store_true", help="start an ngrok HTTPS tunnel on boot"
     )
     args = parser.parse_args()
@@ -286,6 +303,12 @@ if __name__ == "__main__":
         password = getpass.getpass("Password (12+ characters): ")
         if len(password) < 12:
             raise SystemExit("Password must have at least 12 characters")
-        create_staff(username, password, args.role, args.event_id)
+        create_staff(
+            username,
+            password,
+            args.role,
+            args.event_id,
+            all_events=args.all_events,
+        )
     else:
         _serve(app, args.ngrok)
