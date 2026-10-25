@@ -1,6 +1,185 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Scanner · Secure QR</title><link rel="stylesheet" href="/static/styles.css"><script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script></head><body><main class="shell scanner-shell"><header class="top"><div><p class="eyebrow">STAFF SCANNER</p><h1>Quét vé</h1><p class="muted">QR được gửi trực tiếp trong HTTPS request body, không mở đường dẫn.</p></div><a class="button secondary" href="/">Trang quản lý</a></header><section class="panel scanner"><label>Sự kiện được phân quyền<select id="event"></select></label><label>Camera<select id="camera"><option>Đang tải camera…</option></select></label><div id="reader"></div><div class="row"><button id="start" class="button">Bắt đầu camera</button><button id="stop" class="button secondary" disabled>Dừng</button></div><p id="result" class="scan-state" role="status">Camera chưa khởi động.</p><p class="muted small">QR tĩnh có thể bị sao chép. Check-in một lần được bảo đảm bằng trạng thái vé trong cơ sở dữ liệu.</p></section></main><script>
-let csrf='',scanner=null,busy=false,running=false;const result=document.getElementById('result');function show(text,kind=''){result.textContent=text;result.className='scan-state '+kind}
-(async()=>{try{const c=await fetch('/api/csrf').then(r=>r.json());csrf=c.csrfToken;const r=await fetch('/api/session');if(!r.ok)throw Error('Vui lòng đăng nhập với tài khoản staff');const d=await r.json();const s=document.getElementById('event');d.events.forEach(e=>{const o=document.createElement('option');o.value=e.id;o.textContent=e.name;s.append(o)});if(!d.events.length){show('Tài khoản chưa được phân quyền sự kiện.','bad');return}try{const cams=await Html5Qrcode.getCameras(),select=document.getElementById('camera');select.replaceChildren();cams.forEach((cam,i)=>{const o=document.createElement('option');o.value=cam.id;o.textContent=cam.label||`Camera ${i+1}`;select.append(o)});if(!cams.length)throw Error('Không tìm thấy camera')}catch(e){show('Không thể truy cập camera: '+e.message,'bad')}}catch(e){show(e.message,'bad')}})();
-async function scanned(decoded){if(busy||!running)return;busy=true;await scanner.pause(true);show('Đang xác minh vé…');try{const r=await fetch('/api/check-ins',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':csrf},body:JSON.stringify({token:decoded})});const d=await r.json();if(r.ok)show('CHECK-IN THÀNH CÔNG · '+d.referenceId,'good');else if(r.status===409)show('VÉ ĐÃ ĐƯỢC SỬ DỤNG','bad');else if(r.status===410)show('VÉ HẾT HẠN HOẶC ĐÃ THU HỒI','bad');else if(r.status===401)show('PHIÊN ĐĂNG NHẬP HẾT HẠN','bad');else show(d.error==='Ticket not found'?'QR KHÔNG HỢP LỆ':d.error||'Không thể check-in','bad')}catch(e){show('Không kết nối được máy chủ','bad')}setTimeout(async()=>{if(running){try{await scanner.resume()}catch{}busy=false}},2200)}
-document.getElementById('start').onclick=async()=>{try{scanner=new Html5Qrcode('reader');await scanner.start(document.getElementById('camera').value,{fps:8,qrbox:{width:240,height:240}},scanned,()=>{});running=true;document.getElementById('start').disabled=true;document.getElementById('stop').disabled=false;show('Đang quét. Đưa QR vào khung hình.')}catch(e){show('Không thể mở camera: '+e.message,'bad')}};document.getElementById('stop').onclick=async()=>{running=false;busy=false;try{await scanner.stop();await scanner.clear()}catch{}document.getElementById('start').disabled=false;document.getElementById('stop').disabled=true;show('Camera đã dừng.')};
-</script></body></html>
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Scanner · Secure QR</title>
+    <link rel="stylesheet" href="/static/styles.css?v=scanner-1" />
+    <script
+      src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+      defer
+    ></script>
+  </head>
+  <body class="scanner-page">
+    <main class="page">
+      <header class="site-header">
+        <div>
+          <p class="eyebrow">STAFF SCANNER</p>
+          <h1>Quét vé</h1>
+          <p class="hint">
+            QR được gửi trực tiếp trong HTTPS request body, không mở đường dẫn.
+          </p>
+        </div>
+        <div class="header-actions">
+          <a class="btn ghost" href="/">Trang quản lý</a>
+        </div>
+      </header>
+
+      <section class="card scanner-card">
+        <div class="scanner-fields">
+          <label class="field"
+            >Sự kiện được phân quyền
+            <select id="event"></select>
+          </label>
+          <label class="field"
+            >Camera
+            <select id="camera">
+              <option>Đang tải camera…</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="reader"></div>
+
+        <div class="row">
+          <button id="start" class="btn">Bắt đầu camera</button>
+          <button id="stop" class="btn ghost" disabled>Dừng</button>
+        </div>
+
+        <p id="scan-status" class="scan-state" role="status">
+          Camera chưa khởi động.
+        </p>
+
+        <p class="hint">
+          QR tĩnh có thể bị sao chép. Check-in một lần được bảo đảm bằng trạng
+          thái vé trong cơ sở dữ liệu.
+        </p>
+      </section>
+    </main>
+    <script>
+      let csrf = "",
+        scanner = null,
+        busy = false,
+        running = false;
+      const result = document.getElementById("scan-status");
+      function show(text, kind = "") {
+        result.textContent = text;
+        result.className = "scan-state " + kind;
+      }
+      (async () => {
+        try {
+          const c = await fetch("/api/csrf").then((r) => r.json());
+          csrf = c.csrfToken;
+          const r = await fetch("/api/session");
+          if (!r.ok) throw Error("Vui lòng đăng nhập với tài khoản staff");
+          const d = await r.json();
+          const s = document.getElementById("event");
+          d.events.forEach((e) => {
+            const o = document.createElement("option");
+            o.value = e.id;
+            o.textContent = e.name;
+            s.append(o);
+          });
+          if (!d.events.length) {
+            show("Tài khoản chưa được phân quyền sự kiện.", "bad");
+            return;
+          }
+          try {
+            const cams = await Html5Qrcode.getCameras(),
+              select = document.getElementById("camera");
+            select.replaceChildren();
+            cams.forEach((cam, i) => {
+              const o = document.createElement("option");
+              o.value = cam.id;
+              o.textContent = cam.label || `Camera ${i + 1}`;
+              select.append(o);
+            });
+            if (!cams.length) throw Error("Không tìm thấy camera");
+          } catch (e) {
+            show("Không thể truy cập camera: " + e.message, "bad");
+          }
+        } catch (e) {
+          show(e.message, "bad");
+        }
+      })();
+      async function scanned(decoded) {
+        if (busy || !running) return;
+        busy = true;
+        await scanner.pause(true);
+        show("Đang xác minh vé…");
+        try {
+          const r = await fetch("/api/check-ins", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": csrf,
+            },
+            body: JSON.stringify({
+              token: decoded,
+              deviceId: (() => {
+                let i = localStorage.getItem("qr-seminar:device-id");
+                if (!i) {
+                  i = crypto.randomUUID();
+                  localStorage.setItem("qr-seminar:device-id", i);
+                }
+                return i;
+              })(),
+            }),
+          });
+          const d = await r.json();
+          if (r.ok) show("CHECK-IN THÀNH CÔNG · " + d.referenceId, "good");
+          else if (r.status === 409) show("VÉ ĐÃ ĐƯỢC SỬ DỤNG", "bad");
+          else if (r.status === 410) show("VÉ HẾT HẠN HOẶC ĐÃ THU HỒI", "bad");
+          else if (r.status === 403 && /khoá|khoa/.test(d.error || ""))
+            show("QR BỊ KHOÁ VỚI THIẾT BỊ KHÁC", "bad");
+          else if (r.status === 401) show("PHIÊN ĐĂNG NHẬP HẾT HẠN", "bad");
+          else
+            show(
+              d.error === "Ticket not found"
+                ? "QR KHÔNG HỢP LỆ"
+                : d.error || "Không thể check-in",
+              "bad",
+            );
+        } catch (e) {
+          show("Không kết nối được máy chủ", "bad");
+        }
+        setTimeout(async () => {
+          if (running) {
+            try {
+              await scanner.resume();
+            } catch {}
+            busy = false;
+          }
+        }, 2200);
+      }
+      document.getElementById("start").onclick = async () => {
+        try {
+          scanner = new Html5Qrcode("reader");
+          await scanner.start(
+            document.getElementById("camera").value,
+            { fps: 8, qrbox: { width: 240, height: 240 } },
+            scanned,
+            () => {},
+          );
+          running = true;
+          document.getElementById("start").disabled = true;
+          document.getElementById("stop").disabled = false;
+          show("Đang quét. Đưa QR vào khung hình.");
+        } catch (e) {
+          show("Không thể mở camera: " + e.message, "bad");
+        }
+      };
+      document.getElementById("stop").onclick = async () => {
+        running = false;
+        busy = false;
+        try {
+          await scanner.stop();
+          await scanner.clear();
+        } catch {}
+        document.getElementById("start").disabled = false;
+        document.getElementById("stop").disabled = true;
+        show("Camera đã dừng.");
+      };
+    </script>
+  </body>
+</html>

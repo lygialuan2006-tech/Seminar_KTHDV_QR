@@ -34,49 +34,128 @@
             <section class="card" id="create-card">
               <h2>Phát hành QR vé / sản phẩm</h2>
               <form id="create-form">
-                <label class="field">Loại QR
+                <label class="field"
+                  >Loại QR
                   <select id="type">
-                    <option value="DIGITAL_TICKET">DIGITAL_TICKET · Vé điện tử</option>
-                    <option value="EVENT_CHECKIN">EVENT_CHECKIN · QR điểm danh sự kiện</option>
+                    <option value="DIGITAL_TICKET">
+                      DIGITAL_TICKET · Vé điện tử
+                    </option>
+                    <option value="EVENT_CHECKIN">
+                      EVENT_CHECKIN · QR điểm danh sự kiện
+                    </option>
                     <option value="PRODUCT">PRODUCT · Tra cứu sản phẩm</option>
                   </select>
                 </label>
-                <label class="field" id="event-field" hidden>Sự kiện
+                <label class="field" id="event-field" hidden
+                  >Sự kiện
                   <select id="event"></select>
                 </label>
                 <div id="event-fields" hidden>
-                  <label class="field">Hoặc tạo sự kiện mới<input id="event-name" maxlength="160" placeholder="Để trống nếu dùng sự kiện đang chọn" /></label>
+                  <label class="field"
+                    >Hoặc tạo sự kiện mới<input
+                      id="event-name"
+                      maxlength="160"
+                      placeholder="Để trống nếu dùng sự kiện đang chọn"
+                  /></label>
                   <details class="event-settings" id="event-settings">
                     <summary>Vị trí và giờ điểm danh (tùy chọn)</summary>
-                    <p class="hint">Chỉ cấu hình GPS nếu muốn giới hạn tự điểm danh theo khoảng cách. Khi tạo sự kiện mới, hãy tạo trước rồi chọn sự kiện để cài đặt.</p>
+                    <p class="hint">
+                      Chỉ cấu hình GPS nếu muốn giới hạn tự điểm danh theo
+                      khoảng cách. Khi tạo sự kiện mới, hãy tạo trước rồi chọn
+                      sự kiện để cài đặt.
+                    </p>
                     <div class="coordinate-row">
-                      <label class="field">Vĩ độ<input id="event-latitude" type="number" step="any" min="-90" max="90" placeholder="10.7769" /></label>
-                      <label class="field">Kinh độ<input id="event-longitude" type="number" step="any" min="-180" max="180" placeholder="106.7009" /></label>
+                      <label class="field"
+                        >Vĩ độ<input
+                          id="event-latitude"
+                          type="number"
+                          step="any"
+                          min="-90"
+                          max="90"
+                          placeholder="10.7769"
+                      /></label>
+                      <label class="field"
+                        >Kinh độ<input
+                          id="event-longitude"
+                          type="number"
+                          step="any"
+                          min="-180"
+                          max="180"
+                          placeholder="106.7009"
+                      /></label>
                     </div>
-                    <button id="event-location" class="btn ghost" type="button">Dùng vị trí hiện tại</button>
-                    <label class="field">Bán kính cho phép (m)<input id="event-radius" type="number" min="20" max="2000" step="10" value="100" /></label>
+                    <button id="event-location" class="btn ghost" type="button">
+                      Dùng vị trí hiện tại
+                    </button>
+                    <label class="field"
+                      >Bán kính cho phép (m)<input
+                        id="event-radius"
+                        type="number"
+                        min="20"
+                        max="2000"
+                        step="10"
+                        value="100"
+                    /></label>
                     <div class="coordinate-row">
-                      <label class="field">Mở điểm danh<input id="event-starts" type="datetime-local" /></label>
-                      <label class="field">Đóng điểm danh<input id="event-ends" type="datetime-local" /></label>
+                      <label class="field"
+                        >Mở điểm danh<input
+                          id="event-starts"
+                          type="datetime-local"
+                      /></label>
+                      <label class="field"
+                        >Đóng điểm danh<input
+                          id="event-ends"
+                          type="datetime-local"
+                      /></label>
                     </div>
                   </details>
                   <p id="event-message" class="hint"></p>
                 </div>
                 <div id="common-fields">
-                <label class="field">Mã tham chiếu
-                  <input id="referenceId" value="TICKET-2026-0001" maxlength="100" required />
-                </label>
-                <label class="field">Nhãn
-                  <input id="label" value="Seminar công nghệ" maxlength="200" required />
-                </label>
+                  <label class="field"
+                    >Mã tham chiếu
+                    <input
+                      id="referenceId"
+                      value="TICKET-2026-0001"
+                      maxlength="100"
+                      required
+                    />
+                  </label>
+                  <label class="field"
+                    >Nhãn
+                    <input
+                      id="label"
+                      value="Seminar công nghệ"
+                      maxlength="200"
+                      required
+                    />
+                  </label>
                 </div>
                 <div id="product-fields" hidden>
-                  <label class="field">Mã lô<input id="batch" maxlength="50" placeholder="LOT-2026-01" /></label>
-                  <label class="field">Thông tin<textarea id="info" maxlength="300" placeholder="Mô tả, hướng dẫn sử dụng..."></textarea></label>
+                  <label class="field"
+                    >Mã lô<input
+                      id="batch"
+                      maxlength="50"
+                      placeholder="LOT-2026-01"
+                  /></label>
+                  <label class="field"
+                    >Thông tin<textarea
+                      id="info"
+                      maxlength="300"
+                      placeholder="Mô tả, hướng dẫn sử dụng..."
+                    ></textarea>
+                  </label>
                 </div>
                 <div id="digital-fields" hidden>
-                  <label class="field">Chủ vé<input id="holder" maxlength="100" placeholder="Nguyễn Văn B" /></label>
-                  <label class="field">Số ghế<input id="seat" maxlength="20" placeholder="B12" /></label>
+                  <label class="field"
+                    >Chủ vé<input
+                      id="holder"
+                      maxlength="100"
+                      placeholder="Nguyễn Văn B"
+                  /></label>
+                  <label class="field"
+                    >Số ghế<input id="seat" maxlength="20" placeholder="B12"
+                  /></label>
                 </div>
                 <button id="create-qr" class="btn" type="submit">Tạo QR</button>
                 <p id="create-error" class="error"></p>
@@ -85,44 +164,98 @@
 
             <section class="card" id="checkin-card">
               <h2>Kiểm tra QR</h2>
-              <label class="field">Token QR<input id="check-token" autocomplete="off" /></label>
+              <label class="field"
+                >Token QR<input id="check-token" autocomplete="off"
+              /></label>
               <div class="row">
-                <button id="checkin" class="btn" type="button">Check-in vé</button>
-                <button id="resolve" class="btn ghost" type="button">Tra cứu PRODUCT</button>
+                <button id="checkin" class="btn" type="button">
+                  Check-in vé
+                </button>
+                <button id="resolve" class="btn ghost" type="button">
+                  Tra cứu PRODUCT
+                </button>
               </div>
-              <p class="hint">Mỗi sự kiện dùng một QR chung để nhiều người tự điểm danh. Vé điện tử riêng có thể được nhân viên quét tại cổng; PRODUCT chỉ tra cứu.</p>
+              <p class="hint">
+                Mỗi sự kiện dùng một QR chung để nhiều người tự điểm danh. Vé
+                điện tử riêng có thể được nhân viên quét tại cổng; PRODUCT chỉ
+                tra cứu.
+              </p>
               <p id="status" class="status" role="status"></p>
             </section>
           </div>
 
           <section class="card col-center" id="result">
-            <p class="message" id="result-empty">QR mới tạo sẽ hiển thị tại đây.</p>
+            <p class="message" id="result-empty">
+              QR mới tạo sẽ hiển thị tại đây.
+            </p>
             <div id="result-body" hidden>
-              <a id="download" download="qr.png" title="Nhấn để tải QR"><img id="qr-image" alt="QR code" /></a>
+              <a id="download" download="qr.png" title="Nhấn để tải QR"
+                ><img id="qr-image" alt="QR code"
+              /></a>
               <dl class="facts">
-                <dt>Mã tham chiếu</dt><dd id="token-label"></dd>
-                <dt>Token (chỉ hiển thị sau khi phát hành)</dt><dd id="token"></dd>
-                <dt>Hạn dùng</dt><dd id="expires"></dd>
-                <dt>Trang QR công khai</dt><dd id="public-url"></dd>
+                <dt>Mã tham chiếu</dt>
+                <dd id="token-label"></dd>
+                <dt>Token (chỉ hiển thị sau khi phát hành)</dt>
+                <dd id="token"></dd>
+                <dt>Hạn dùng</dt>
+                <dd id="expires"></dd>
+                <dt>Trang QR công khai</dt>
+                <dd id="public-url"></dd>
               </dl>
             </div>
           </section>
 
           <div class="col-right">
             <section class="card stats-card">
-              <p class="counter"><strong id="checked">0</strong><span>lượt đã điểm danh</span></p>
-              <p class="summary"><span>Tổng vé/điểm danh</span><b id="total">0</b></p>
-              <p class="summary"><span>Tự điểm danh sự kiện</span><b id="self-checkins">0</b></p>
-              <p class="summary"><span>Chưa sử dụng</span><b id="issued">0</b></p>
-              <div class="section-heading stats-history-heading"><h3>Gần đây</h3><button id="clear-history" class="btn ghost" type="button">Xóa lịch sử</button></div>
+              <p class="counter">
+                <strong id="checked">0</strong><span>lượt đã điểm danh</span>
+              </p>
+              <p class="summary">
+                <span>Tổng vé/điểm danh</span><b id="total">0</b>
+              </p>
+              <p class="summary">
+                <span>Tự điểm danh sự kiện</span><b id="self-checkins">0</b>
+              </p>
+              <p class="summary">
+                <span>Chưa sử dụng</span><b id="issued">0</b>
+              </p>
+              <div class="section-heading stats-history-heading">
+                <h3>Gần đây</h3>
+                <button id="clear-history" class="btn ghost" type="button">
+                  Xóa lịch sử
+                </button>
+              </div>
               <ul class="people" id="people"></ul>
             </section>
           </div>
         </div>
 
         <section class="card lower-card">
-          <div class="section-heading"><div><p class="eyebrow">ADMIN</p><h2>Vé đã phát hành</h2></div><button id="refresh" class="btn ghost" type="button">Làm mới</button></div>
-          <div class="table-wrap"><table><thead><tr><th>Mã</th><th>Loại</th><th>Sự kiện</th><th>Email / SĐT</th><th>Trạng thái</th><th>Hạn dùng</th><th></th></tr></thead><tbody id="tickets"></tbody></table></div>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">ADMIN</p>
+              <h2>Vé đã phát hành</h2>
+            </div>
+            <button id="refresh" class="btn ghost" type="button">
+              Làm mới
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mã</th>
+                  <th>Loại</th>
+                  <th>Sự kiện</th>
+                  <th>Email / SĐT</th>
+                  <th>Trạng thái</th>
+                  <th>Hạn dùng</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tickets"></tbody>
+            </table>
+          </div>
           <p id="empty" class="message">Chưa có vé.</p>
         </section>
       </main>
@@ -132,12 +265,39 @@
       const el = (id) => document.getElementById(id);
       let csrf = "";
       const LAST_QR_KEY = "qr-seminar:last-generated-qr";
-      class ApiError extends Error { constructor(message, status) { super(message); this.status = status; } }
+      const DEVICE_KEY = "qr-seminar:device-id";
+      function deviceId() {
+        let id = localStorage.getItem(DEVICE_KEY);
+        if (!id) {
+          id = crypto.randomUUID();
+          localStorage.setItem(DEVICE_KEY, id);
+        }
+        return id;
+      }
+      function deviceLabel() {
+        const platform =
+          navigator.userAgentData?.platform || navigator.platform || "Thiết bị";
+        return `${platform} · ${navigator.language}`.slice(0, 80);
+      }
+      class ApiError extends Error {
+        constructor(message, status) {
+          super(message);
+          this.status = status;
+        }
+      }
       async function api(url, options = {}) {
-        const headers = { ...(options.body ? { "Content-Type": "application/json" } : {}), ...(options.method ? { "X-CSRF-Token": csrf } : {}), ...(options.headers || {}) };
+        const headers = {
+          ...(options.body ? { "Content-Type": "application/json" } : {}),
+          ...(options.method ? { "X-CSRF-Token": csrf } : {}),
+          ...(options.headers || {}),
+        };
         const response = await fetch(url, { ...options, headers });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new ApiError(data.error || `Yêu cầu thất bại (${response.status})`, response.status);
+        if (!response.ok)
+          throw new ApiError(
+            data.error || `Yêu cầu thất bại (${response.status})`,
+            response.status,
+          );
         return data;
       }
       function showStatus(text, ok = true) {
@@ -151,67 +311,158 @@
 
       async function refresh() {
         const [stats, ticketData, checkins] = await Promise.all([
-          api("/api/stats"), api("/api/tickets"), api("/api/check-ins")
+          api("/api/stats"),
+          api("/api/tickets"),
+          api("/api/check-ins"),
         ]);
         el("checked").textContent = stats.checkedIn;
         el("total").textContent = stats.tickets;
         el("self-checkins").textContent = stats.selfCheckins || 0;
         el("issued").textContent = stats.issued;
-        const tbody = el("tickets"); tbody.replaceChildren();
+        const tbody = el("tickets");
+        tbody.replaceChildren();
         el("empty").hidden = ticketData.tickets.length > 0;
         ticketData.tickets.forEach((ticket) => {
           const row = document.createElement("tr");
-          [ticket.referenceId, ticket.type, ticket.eventId ?? "PRODUCT", ticket.contactEmail && ticket.contactPhone ? `${ticket.contactEmail} · ${ticket.contactPhone}` : "Chưa đăng ký", ticket.status, ticket.expiresAt ? new Date(ticket.expiresAt).toLocaleString("vi-VN") : "Không hết hạn"].forEach((value) => {
-            const cell = document.createElement("td"); cell.textContent = value; row.append(cell);
+          [
+            ticket.referenceId,
+            ticket.type,
+            ticket.eventId ?? "PRODUCT",
+            ticket.contactEmail && ticket.contactPhone
+              ? `${ticket.contactEmail} · ${ticket.contactPhone}`
+              : "Chưa đăng ký",
+            ticket.status,
+            ticket.expiresAt
+              ? new Date(ticket.expiresAt).toLocaleString("vi-VN")
+              : "Không hết hạn",
+          ].forEach((value) => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.append(cell);
           });
           const action = document.createElement("td");
-          const remove = document.createElement("button"); remove.className = "text-button"; remove.textContent = "Xóa";
-          remove.onclick = async () => { if (confirm(`Xóa QR ${ticket.referenceId} khỏi danh sách? QR chưa dùng sẽ bị vô hiệu hóa; lịch sử điểm danh được giữ.`)) { try { await api(`/api/tickets/${ticket.id}`, { method: "DELETE" }); showNotice("Đã xóa QR khỏi danh sách."); await refresh(); } catch (error) { showNotice(error.message, true); } } };
+          const remove = document.createElement("button");
+          remove.className = "text-button";
+          remove.textContent = "Xóa";
+          remove.onclick = async () => {
+            if (
+              confirm(
+                `Xóa QR ${ticket.referenceId} khỏi danh sách? QR chưa dùng sẽ bị vô hiệu hóa; lịch sử điểm danh được giữ.`,
+              )
+            ) {
+              try {
+                await api(`/api/tickets/${ticket.id}`, { method: "DELETE" });
+                showNotice("Đã xóa QR khỏi danh sách.");
+                await refresh();
+              } catch (error) {
+                showNotice(error.message, true);
+              }
+            }
+          };
           action.append(remove);
-          row.append(action); tbody.append(row);
+          row.append(action);
+          tbody.append(row);
         });
-        const people = el("people"); people.replaceChildren();
+        const people = el("people");
+        people.replaceChildren();
         checkins.items.slice(0, 20).forEach((item, index) => {
-          const li = document.createElement("li"); if (index === 0) li.className = "is-new";
-          const order = document.createElement("span"); order.className = "index"; order.textContent = `#${index + 1}`;
-          const who = document.createElement("div"); who.className = "who"; who.textContent = item.referenceId;
-          const small = document.createElement("small"); small.textContent = item.staff; who.append(small);
-          const time = document.createElement("span"); time.className = "time"; time.textContent = new Date(item.checkedInAt).toLocaleTimeString("vi-VN");
-          li.append(order, who, time); people.append(li);
+          const li = document.createElement("li");
+          if (index === 0) li.className = "is-new";
+          const order = document.createElement("span");
+          order.className = "index";
+          order.textContent = `#${index + 1}`;
+          const who = document.createElement("div");
+          who.className = "who";
+          who.textContent = item.referenceId;
+          const small = document.createElement("small");
+          small.textContent = item.staff;
+          who.append(small);
+          const time = document.createElement("span");
+          time.className = "time";
+          time.textContent = new Date(item.checkedInAt).toLocaleTimeString(
+            "vi-VN",
+          );
+          li.append(order, who, time);
+          people.append(li);
         });
       }
 
       async function initialize(preferredEventId = null) {
         // Chỉ hiện thông báo đăng nhập khi endpoint session thật sự trả về 401.
-        const c = await api("/api/csrf"); csrf = c.csrfToken;
+        const c = await api("/api/csrf");
+        csrf = c.csrfToken;
         let session;
-        try { session = await api("/api/session"); }
-        catch (error) {
-          if (error.status === 401) { el("login-needed").hidden = false; el("dashboard").hidden = true; }
-          else showNotice(`Không kiểm tra được phiên đăng nhập: ${error.message}`, true);
+        try {
+          session = await api("/api/session");
+        } catch (error) {
+          if (error.status === 401) {
+            el("login-needed").hidden = false;
+            el("dashboard").hidden = true;
+          } else
+            showNotice(
+              `Không kiểm tra được phiên đăng nhập: ${error.message}`,
+              true,
+            );
           return;
         }
-        if (session.role !== "admin") { location.href = "/scanner"; return; }
-        el("login-needed").hidden = true; el("dashboard").hidden = false;
-        el("logout").hidden = false; el("account").textContent = `Đang đăng nhập: ${session.username}`;
+        if (session.role !== "admin") {
+          location.href = "/scanner";
+          return;
+        }
+        el("login-needed").hidden = true;
+        el("dashboard").hidden = false;
+        el("logout").hidden = false;
+        el("account").textContent = `Đang đăng nhập: ${session.username}`;
         try {
           const savedQr = sessionStorage.getItem(LAST_QR_KEY);
           if (savedQr) {
             const parsedQr = JSON.parse(savedQr);
-            if (parsedQr && parsedQr.imagePngBase64 && parsedQr.type) renderGeneratedQr(parsedQr, false);
+            if (parsedQr && parsedQr.imagePngBase64 && parsedQr.type)
+              renderGeneratedQr(parsedQr, false);
             else sessionStorage.removeItem(LAST_QR_KEY);
           }
-          } catch (_) { try { sessionStorage.removeItem(LAST_QR_KEY); } catch (_) {} }
-        const eventSelect = el("event"); eventSelect.replaceChildren();
-        session.events.forEach((event) => { const option = document.createElement("option"); option.value = event.id; option.textContent = event.name; eventSelect.append(option); });
-        if (preferredEventId && session.events.some((event) => event.id === preferredEventId)) eventSelect.value = String(preferredEventId);
+        } catch (_) {
+          try {
+            sessionStorage.removeItem(LAST_QR_KEY);
+          } catch (_) {}
+        }
+        const eventSelect = el("event");
+        eventSelect.replaceChildren();
+        session.events.forEach((event) => {
+          const option = document.createElement("option");
+          option.value = event.id;
+          option.textContent = event.name;
+          eventSelect.append(option);
+        });
+        if (
+          preferredEventId &&
+          session.events.some((event) => event.id === preferredEventId)
+        )
+          eventSelect.value = String(preferredEventId);
         if (eventSelect.value) await loadEventSettings(eventSelect.value);
-        if (!session.events.length) showNotice("Chưa có sự kiện. Chọn EVENT_CHECKIN để tạo QR điểm danh hoặc tạo sự kiện trước khi phát hành vé điện tử.");
-        try { await refresh(); }
-        catch (error) { showNotice(`Đã đăng nhập, nhưng không tải được dữ liệu: ${error.message}`, true); }
+        if (!session.events.length)
+          showNotice(
+            "Chưa có sự kiện. Chọn EVENT_CHECKIN để tạo QR điểm danh hoặc tạo sự kiện trước khi phát hành vé điện tử.",
+          );
+        try {
+          await refresh();
+        } catch (error) {
+          showNotice(
+            `Đã đăng nhập, nhưng không tải được dữ liệu: ${error.message}`,
+            true,
+          );
+        }
       }
 
-      el("logout").onclick = async () => { try { await api("/api/logout", { method: "POST" }); sessionStorage.removeItem(LAST_QR_KEY); location.href = "/login"; } catch (error) { showNotice(error.message, true); } };
+      el("logout").onclick = async () => {
+        try {
+          await api("/api/logout", { method: "POST" });
+          sessionStorage.removeItem(LAST_QR_KEY);
+          location.href = "/login";
+        } catch (error) {
+          showNotice(error.message, true);
+        }
+      };
       function updateQrTypeFields() {
         const type = el("type").value;
         el("event-field").hidden = type === "PRODUCT";
@@ -221,105 +472,223 @@
         el("label").required = type !== "EVENT_CHECKIN";
         el("product-fields").hidden = type !== "PRODUCT";
         el("digital-fields").hidden = type !== "DIGITAL_TICKET";
-        el("create-qr").textContent = type === "EVENT_CHECKIN" ? "Tạo / cập nhật QR sự kiện" : "Tạo QR";
+        el("create-qr").textContent =
+          type === "EVENT_CHECKIN" ? "Tạo / cập nhật QR sự kiện" : "Tạo QR";
       }
       el("type").onchange = updateQrTypeFields;
       updateQrTypeFields();
       el("event-name").oninput = () => {
         el("event-settings").hidden = Boolean(el("event-name").value.trim());
-        el("event-message").textContent = el("event-name").value.trim() ? "Tạo sự kiện trước; sau đó chọn sự kiện để cài GPS và giờ nếu cần." : "Để trống để dùng sự kiện đang chọn.";
+        el("event-message").textContent = el("event-name").value.trim()
+          ? "Tạo sự kiện trước; sau đó chọn sự kiện để cài GPS và giờ nếu cần."
+          : "Để trống để dùng sự kiện đang chọn.";
       };
       el("event-location").onclick = () => {
-        if (!navigator.geolocation) { el("event-message").textContent = "Trình duyệt không hỗ trợ định vị."; return; }
+        if (!navigator.geolocation) {
+          el("event-message").textContent = "Trình duyệt không hỗ trợ định vị.";
+          return;
+        }
         el("event-message").textContent = "Đang lấy vị trí hiện tại…";
-        navigator.geolocation.getCurrentPosition(({ coords }) => {
-          el("event-latitude").value = coords.latitude.toFixed(6);
-          el("event-longitude").value = coords.longitude.toFixed(6);
-          el("event-message").textContent = `Đã lấy vị trí (độ chính xác khoảng ${Math.round(coords.accuracy)} m).`;
-        }, (error) => { el("event-message").textContent = `Không lấy được vị trí: ${error.message}`; }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            el("event-latitude").value = coords.latitude.toFixed(6);
+            el("event-longitude").value = coords.longitude.toFixed(6);
+            el("event-message").textContent =
+              `Đã lấy vị trí (độ chính xác khoảng ${Math.round(coords.accuracy)} m).`;
+          },
+          (error) => {
+            el("event-message").textContent =
+              `Không lấy được vị trí: ${error.message}`;
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+        );
       };
       el("create-form").onsubmit = async (event) => {
-        event.preventDefault(); el("create-error").textContent = "";
+        event.preventDefault();
+        el("create-error").textContent = "";
         const type = el("type").value;
         if (type === "EVENT_CHECKIN") {
           try {
             const newEventName = el("event-name").value.trim();
             if (newEventName) {
-              const created = await api("/api/events", { method: "POST", body: JSON.stringify({ name: newEventName }) });
+              const created = await api("/api/events", {
+                method: "POST",
+                body: JSON.stringify({ name: newEventName }),
+              });
               el("event-name").value = "";
               el("event-settings").hidden = false;
               await initialize(created.id);
-              renderGeneratedQr({ type, referenceId: created.name, token: null, publicUrl: created.checkinUrl, imagePngBase64: created.imagePngBase64, expiresAt: null });
+              renderGeneratedQr({
+                type,
+                referenceId: created.name,
+                token: null,
+                publicUrl: created.checkinUrl,
+                imagePngBase64: created.imagePngBase64,
+                expiresAt: null,
+              });
               showStatus(`Đã tạo QR điểm danh cho sự kiện ${created.name}.`);
             } else {
               const eventId = el("event").value;
-              if (!eventId) throw new Error("Hãy chọn sự kiện hoặc nhập tên để tạo sự kiện mới.");
-              const updated = await api(`/api/events/${eventId}/settings`, { method: "PATCH", body: JSON.stringify(eventSettingsPayload()) });
-              renderGeneratedQr({ type, referenceId: updated.name, token: null, publicUrl: updated.checkinUrl, imagePngBase64: updated.imagePngBase64, expiresAt: null });
-              el("event-message").textContent = updated.selfCheckinEnabled ? `Đã lưu. Tự điểm danh trong bán kính ${updated.radiusMeters} m.` : "Đã lưu. QR điểm danh không giới hạn vị trí GPS.";
-              showStatus(`Đã cập nhật QR điểm danh cho sự kiện ${updated.name}.`);
+              if (!eventId)
+                throw new Error(
+                  "Hãy chọn sự kiện hoặc nhập tên để tạo sự kiện mới.",
+                );
+              const updated = await api(`/api/events/${eventId}/settings`, {
+                method: "PATCH",
+                body: JSON.stringify(eventSettingsPayload()),
+              });
+              renderGeneratedQr({
+                type,
+                referenceId: updated.name,
+                token: null,
+                publicUrl: updated.checkinUrl,
+                imagePngBase64: updated.imagePngBase64,
+                expiresAt: null,
+              });
+              el("event-message").textContent = updated.selfCheckinEnabled
+                ? `Đã lưu. Tự điểm danh trong bán kính ${updated.radiusMeters} m.`
+                : "Đã lưu. QR điểm danh không giới hạn vị trí GPS.";
+              showStatus(
+                `Đã cập nhật QR điểm danh cho sự kiện ${updated.name}.`,
+              );
             }
             await refresh();
-          } catch (error) { el("create-error").textContent = error.message; }
+          } catch (error) {
+            el("create-error").textContent = error.message;
+          }
           return;
         }
-        const payload = { type, referenceId: el("referenceId").value.trim(), label: el("label").value.trim() };
+        const payload = {
+          type,
+          referenceId: el("referenceId").value.trim(),
+          label: el("label").value.trim(),
+        };
         if (type !== "PRODUCT") {
-          if (!el("event").value) { el("create-error").textContent = "Hãy tạo và chọn sự kiện trước."; return; }
+          if (!el("event").value) {
+            el("create-error").textContent = "Hãy tạo và chọn sự kiện trước.";
+            return;
+          }
           payload.eventId = Number(el("event").value);
         }
-        if (type === "PRODUCT") Object.assign(payload, { batch: el("batch").value.trim(), info: el("info").value.trim() });
-        if (type === "DIGITAL_TICKET") Object.assign(payload, { holder: el("holder").value.trim(), seat: el("seat").value.trim() });
+        if (type === "PRODUCT")
+          Object.assign(payload, {
+            batch: el("batch").value.trim(),
+            info: el("info").value.trim(),
+          });
+        if (type === "DIGITAL_TICKET")
+          Object.assign(payload, {
+            holder: el("holder").value.trim(),
+            seat: el("seat").value.trim(),
+          });
+        if (type !== "PRODUCT")
+          Object.assign(payload, {
+            deviceId: deviceId(),
+            deviceLabel: deviceLabel(),
+          });
         try {
-          const data = await api("/api/qr", { method: "POST", body: JSON.stringify(payload) });
+          const data = await api("/api/qr", {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
           renderGeneratedQr(data);
-          el("check-token").value = type === "PRODUCT" ? "" : (data.token || data.publicUrl || "");
-          showStatus(type === "DIGITAL_TICKET" ? "Đã tạo vé điện tử. Người tham dự quét QR để đăng ký email và số điện thoại; nhân viên quét vé tại cổng." : "Đã tạo QR tra cứu sản phẩm.");
+          el("check-token").value =
+            type === "PRODUCT"
+              ? ""
+              : data.qrPayload || data.token || data.publicUrl || "";
+          showStatus(
+            type === "DIGITAL_TICKET"
+              ? "Đã tạo vé điện tử. Người tham dự quét QR để đăng ký email và số điện thoại; nhân viên quét vé tại cổng."
+              : "Đã tạo QR tra cứu sản phẩm.",
+          );
           await refresh();
-        } catch (error) { el("create-error").textContent = error.message; }
+        } catch (error) {
+          el("create-error").textContent = error.message;
+        }
       };
       function renderGeneratedQr(data, persist = true) {
         const src = "data:image/png;base64," + data.imagePngBase64;
-        el("qr-image").src = src; el("download").href = src;
+        el("qr-image").src = src;
+        el("download").href = src;
         el("token-label").textContent = data.referenceId;
         const showRawToken = Boolean(data.token);
         const tokenTerm = el("token").previousElementSibling;
-        tokenTerm.hidden = !showRawToken; el("token").hidden = !showRawToken; el("token").textContent = showRawToken ? data.token : "";
-        el("expires").textContent = data.expiresAt ? new Date(data.expiresAt).toLocaleString("vi-VN") : "Không hết hạn";
-        el("public-url").textContent = data.publicUrl || "QR token dùng cho scanner staff";
-        el("result-empty").hidden = true; el("result-body").hidden = false;
-        el("check-token").value = data.type === "EVENT_CHECKIN" ? "" : (data.token || data.publicUrl || "");
+        tokenTerm.hidden = !showRawToken;
+        el("token").hidden = !showRawToken;
+        el("token").textContent = showRawToken ? data.token : "";
+        el("expires").textContent = data.expiresAt
+          ? new Date(data.expiresAt).toLocaleString("vi-VN")
+          : "Không hết hạn";
+        el("public-url").textContent =
+          data.publicUrl || "QR token dùng cho scanner staff";
+        el("result-empty").hidden = true;
+        el("result-body").hidden = false;
+        el("check-token").value =
+          data.type === "EVENT_CHECKIN"
+            ? ""
+            : data.qrPayload || data.token || data.publicUrl || "";
         if (persist) {
-          try { sessionStorage.setItem(LAST_QR_KEY, JSON.stringify(data)); }
-          catch (_) { showNotice("QR vẫn đang hiển thị, nhưng trình duyệt không cho lưu để khôi phục sau khi tải lại trang.", true); }
+          try {
+            sessionStorage.setItem(LAST_QR_KEY, JSON.stringify(data));
+          } catch (_) {
+            showNotice(
+              "QR vẫn đang hiển thị, nhưng trình duyệt không cho lưu để khôi phục sau khi tải lại trang.",
+              true,
+            );
+          }
         }
       }
       el("checkin").onclick = async () => {
-        const token = el("check-token").value.trim(); if (!token) return showStatus("Nhập hoặc quét token trước.", false);
-        const button = el("checkin"); button.disabled = true;
-        try { const result = await api("/api/check-ins", { method: "POST", body: JSON.stringify({ token }) }); showStatus(`CHECKED_IN · ${result.referenceId}`); await refresh(); }
-        catch (error) { showStatus(error.message, false); }
-        finally { button.disabled = false; }
+        const token = el("check-token").value.trim();
+        if (!token) return showStatus("Nhập hoặc quét token trước.", false);
+        const button = el("checkin");
+        button.disabled = true;
+        try {
+          const result = await api("/api/check-ins", {
+            method: "POST",
+            body: JSON.stringify({ token, deviceId: deviceId() }),
+          });
+          showStatus(`CHECKED_IN · ${result.referenceId}`);
+          await refresh();
+        } catch (error) {
+          showStatus(error.message, false);
+        } finally {
+          button.disabled = false;
+        }
       };
       el("resolve").onclick = async () => {
-        const token = el("check-token").value.trim(); if (!token) return showStatus("Nhập token PRODUCT trước.", false);
-        try { const product = await api("/api/products/lookup", { method: "POST", body: JSON.stringify({ token }) }); showStatus(`${product.label} · ${product.referenceId}${product.info ? " · " + product.info : ""}`); }
-        catch (error) { showStatus(error.message, false); }
+        const token = el("check-token").value.trim();
+        if (!token) return showStatus("Nhập token PRODUCT trước.", false);
+        try {
+          const product = await api("/api/products/lookup", {
+            method: "POST",
+            body: JSON.stringify({ token }),
+          });
+          showStatus(
+            `${product.label} · ${product.referenceId}${product.info ? " · " + product.info : ""}`,
+          );
+        } catch (error) {
+          showStatus(error.message, false);
+        }
       };
       function eventSettingsPayload() {
-        const lat = el("event-latitude").value, lon = el("event-longitude").value;
-        const start = el("event-starts").value, end = el("event-ends").value;
+        const lat = el("event-latitude").value,
+          lon = el("event-longitude").value;
+        const start = el("event-starts").value,
+          end = el("event-ends").value;
         return {
-          latitude: lat === "" ? null : Number(lat), longitude: lon === "" ? null : Number(lon),
+          latitude: lat === "" ? null : Number(lat),
+          longitude: lon === "" ? null : Number(lon),
           radiusMeters: Number(el("event-radius").value),
           startsAt: start ? new Date(start).toISOString() : null,
-          endsAt: end ? new Date(end).toISOString() : null
+          endsAt: end ? new Date(end).toISOString() : null,
         };
       }
       function toLocalDateTime(value) {
         if (!value) return "";
         const date = new Date(value);
-        return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+          .toISOString()
+          .slice(0, 16);
       }
       async function loadEventSettings(eventId) {
         if (!eventId) return;
@@ -330,23 +699,41 @@
           el("event-radius").value = settings.radiusMeters;
           el("event-starts").value = toLocalDateTime(settings.startsAt);
           el("event-ends").value = toLocalDateTime(settings.endsAt);
-        } catch (error) { el("event-message").textContent = error.message; }
+        } catch (error) {
+          el("event-message").textContent = error.message;
+        }
       }
       el("event").onchange = () => {
         el("event-name").value = "";
         el("event-settings").hidden = false;
         loadEventSettings(el("event").value);
       };
-      el("refresh").onclick = () => refresh().catch((error) => showNotice(`Không tải được dữ liệu: ${error.message}`, true));
+      el("refresh").onclick = () =>
+        refresh().catch((error) =>
+          showNotice(`Không tải được dữ liệu: ${error.message}`, true),
+        );
       el("clear-history").onclick = async () => {
-        if (!confirm("Xóa toàn bộ lịch sử check-in của vé và tự điểm danh sự kiện? Thao tác này không thể hoàn tác.")) return;
+        if (
+          !confirm(
+            "Xóa toàn bộ lịch sử check-in của vé và tự điểm danh sự kiện? Thao tác này không thể hoàn tác.",
+          )
+        )
+          return;
         try {
-          const result = await api("/api/check-ins/history", { method: "DELETE" });
-          showNotice(`Đã xóa ${result.staffCheckinsRemoved + result.selfCheckinsRemoved} lượt điểm danh khỏi lịch sử.`);
+          const result = await api("/api/check-ins/history", {
+            method: "DELETE",
+          });
+          showNotice(
+            `Đã xóa ${result.staffCheckinsRemoved + result.selfCheckinsRemoved} lượt điểm danh khỏi lịch sử.`,
+          );
           await refresh();
-        } catch (error) { showNotice(error.message, true); }
+        } catch (error) {
+          showNotice(error.message, true);
+        }
       };
-      initialize().catch((error) => showNotice(`Không khởi tạo được giao diện: ${error.message}`, true));
+      initialize().catch((error) =>
+        showNotice(`Không khởi tạo được giao diện: ${error.message}`, true),
+      );
     </script>
   </body>
 </html>

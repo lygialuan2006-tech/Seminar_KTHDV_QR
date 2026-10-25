@@ -8,7 +8,8 @@ Tài sản cần bảo vệ gồm quyền phát hành/thu hồi vé, trạng th�
 
 - **Sinh token:** `secrets.token_urlsafe(32)` tạo token ngẫu nhiên cho vé EVENT_CHECKIN cá nhân; DB chỉ lưu digest. QR chung điểm danh sự kiện dùng public ID riêng trong URL `/e/{id}`; người tham dự nhập mã sinh viên rồi xác nhận, không đưa token vé vào URL.
 - **Hashing:** SHA-256 lưu digest token để lookup; entropy cao của token làm phù hợp hash nhanh. Mật khẩu người dùng dùng Argon2id, không SHA-256.
-- **Mã hóa:** QR mặc định chứa opaque token, không bọc AES thừa. Codec tùy chọn QRA1 dùng AES-256-GCM, nonce ngẫu nhiên 12 byte, tag 16 byte, AAD gắn version, mục đích và event, `kid` hỗ trợ chọn key khi xoay vòng. AES-GCM xác thực nội dung nhưng không ngăn sao chép/replay QR; trạng thái DB dùng một lần mới là lớp replay control.
+- **Mã hóa:** QR chứa opaque token, không bọc AES. TLS mã hóa truyền tải khi triển khai HTTPS; HTTP localhost không có TLS.
+- **Gắn thiết bị:** vé EVENT_CHECKIN/DIGITAL_TICKET bắt buộc `deviceId` khi phát hành; payload QR thêm `HMAC-SHA256(SESSION_SECRET, token|deviceId)` (16 hex). Server lưu `device_id` và kiểm tra cả chữ ký lẫn cột `device_id` khi check-in, sai thiết bị trả 403. Đây là rào chắn bổ sung, không thay thế trạng thái dùng-một-lần trong DB.
 - **Xác thực/phân quyền:** session cookie ký, HttpOnly, SameSite=Lax; Secure bật qua `SESSION_HTTPS_ONLY`. Admin quản lý vé/event/audit; staff check-in event được gán. Mutation yêu cầu CSRF token.
 - **Check-in:** conditional UPDATE trong DB transaction chỉ đổi `ISSUED` thành `USED` nếu vé chưa dùng/thu hồi và chưa hết hạn; checkin log + audit ghi cùng transaction.
 - **Loại QR:** PRODUCT lookup không yêu cầu tài khoản và không tiêu thụ QR. DIGITAL_TICKET cho người sở hữu vé gửi email/số điện thoại một lần; trang công khai không trả lại dữ liệu liên hệ, admin có quyền xem. Chỉ staff được phân quyền mới xác nhận sử dụng. QR sự kiện tự điểm danh kiểm tra thời gian và, nếu cấu hình, khoảng cách GPS.
@@ -17,7 +18,7 @@ Tài sản cần bảo vệ gồm quyền phát hành/thu hồi vé, trạng th�
 
 ## Giới hạn QR tĩnh
 
-QR tĩnh không chứng minh danh tính người cầm vé và không chống chụp màn hình/copy. Public ID cho trang sản phẩm/tình trạng vé có thể bị chia sẻ; endpoint chỉ trả dữ liệu cần thiết và không cấp quyền check-in. Mỗi vé chỉ được staff xác nhận sử dụng một lần; hai request đồng thời chỉ có một request thắng. Token check-in không nằm trong URL, browser history, application logs, analytics hay DB plaintext; scanner gửi QR trong request body và TLS bảo vệ khi truyền qua mạng.
+QR tĩnh không chứng minh danh tính người cầm vé và không chống chụp màn hình/copy. Public ID cho trang sản phẩm/tình trạng vé có thể bị chia sẻ; endpoint chỉ trả dữ liệu cần thiết và không cấp quyền check-in. Mỗi vé chỉ được staff xác nhận sử dụng một lần; hai request đồng thời chỉ có một request thắng. Token check-in không nằm trong URL, browser history, application logs, analytics hay DB plaintext; scanner gửi QR trong request body và TLS bảo vệ khi truyền qua mạng. Chữ ký HMAC gắn QR với một `deviceId` nên bản sao QR không dùng được ở thiết bị khác, nhưng nếu kẻ tấn công lấy được cả `localStorage` chứa deviceId lẫn QR thì vẫn vượt được — đây là giới hạn đã biết của định danh thiết bị phía client.
 
 OTP qua email chưa được triển khai vì dự án chưa cấu hình nhà cung cấp email hoặc quy trình xác minh địa chỉ. Không có khẳng định xác minh danh tính chủ vé.
 
@@ -25,8 +26,7 @@ Email và số điện thoại do người quét tự nhập, chưa được xá
 
 ## Quản trị khóa và phiên
 
-- Tạo `SESSION_SECRET` bằng bộ sinh ngẫu nhiên bí mật; không commit hoặc chia sẻ. Xoay khóa session sẽ đăng xuất session hiện tại.
-- Nếu bật `QR_AES_KEYS`, lưu key 32 byte trong secret manager, key ID ổn định. Khi xoay, phát hành key ID mới, giữ key cũ chỉ trong giai đoạn cần giải mã payload cũ rồi thu hồi. Mặc định token opaque không cần AES key.
+- Tạo `SESSION_SECRET` bằng bộ sinh ngẫu nhiên bí mật; không commit hoặc chia sẻ. Xoay khóa session sẽ đăng xuất session hiện tại và làm mọi chữ ký QR cũ không còn hợp lệ — cần phát hành lại QR sau khi xoay.
 - Argon2id hash mật khẩu bằng salt riêng; đổi/reset mật khẩu nên thực hiện ngoài band bởi quản trị viên.
 
 ## Backup và incident response
@@ -35,7 +35,6 @@ Email và số điện thoại do người quét tự nhập, chưa được xá
 - Khi lộ vé: revoke vé chưa dùng, theo dõi audit, phát hành vé mới và thông báo chủ thể liên quan. Vé đã check-in không thể reset qua API.
 - Khi lộ session secret: thay secret, dừng/khởi động lại dịch vụ và yêu cầu mọi người đăng nhập lại.
 - Khi nghi lộ tài khoản: vô hiệu hóa account/thu hồi quyền event, đặt lại mật khẩu, rà audit log và kiểm tra log reverse proxy để loại bỏ query/path chứa token.
-- Khi lộ AES key tùy chọn: dừng phát hành payload với key đó, chuyển key ID mới, đánh giá vé bị ảnh hưởng và thay vé. AES-GCM không thu hồi QR đã bị chụp.
 
 ## Rủi ro còn lại
 

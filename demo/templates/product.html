@@ -1,23 +1,34 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{{ product.label }} · Thông tin sản phẩm</title><link rel="stylesheet" href="/static/styles.css?v=ios-mobile-1"><style>
-      *, *::before, *::after { box-sizing: border-box; }
-      html { -webkit-text-size-adjust: 100%; }
-      body.center.product-view { min-height: 100vh; min-height: 100svh; margin: 0; display: grid; place-items: center; padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); background: #f6f7f8; color: #17191d; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .product-page { width: min(100%, 520px); margin: auto; padding: 30px; border: 1px solid #e7e9ed; border-radius: 18px; background: #fff; box-shadow: 0 18px 55px rgb(17 24 39 / 7%); overflow-wrap: anywhere; }
-      .product-page .kicker { color: #687386; font-size: 12px; font-weight: 700; letter-spacing: .12em; }
-      .product-page h1 { margin: 14px 0 8px; font-size: clamp(25px, 7vw, 34px); line-height: 1.2; letter-spacing: -.035em; }
-      .product-page .ref { color: #687386; font-size: 15px; }
-      .product-page .badge { display: inline-flex; margin: 20px 0 8px; padding: 9px 14px; border-radius: 999px; background: #ecfdf3; color: #18743a; font-size: 14px; font-weight: 650; }
-      .product-page .facts { display: grid; grid-template-columns: 1fr; gap: 5px; margin: 18px 0; font-size: 14px; }
-      .product-page .facts dt { color: #687386; }
-      .product-page .facts dd { margin: 0; font-weight: 600; }
-      .product-info { margin-top: 22px; }
-      .product-info h2 { margin: 0 0 8px; font-size: 19px; }
-      .product-info p, .product-page .note { line-height: 1.6; }
-      .product-page .note { margin-top: 22px; padding-top: 16px; border-top: 1px solid #e7e9ed; color: #687386; font-size: 13px; }
-      @media (max-width: 480px) { body.center.product-view { place-items: start center; } .product-page { padding: 24px 20px; border-radius: 16px; } }
-    </style>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <title>{{ product.label }} · Thông tin sản phẩm</title>
+    <link rel="stylesheet" href="/static/styles.css" />
   </head>
-<body class="center product-view"><main class="ticket product-page"><p class="kicker">THÔNG TIN SẢN PHẨM</p><h1>{{ product.label }}</h1><p class="ref">Mã sản phẩm: {{ product.referenceId }}</p><div class="badge ok">Đang lưu hành</div>
-{% if product.batch %}<dl class="facts"><dt>Mã lô</dt><dd>{{ product.batch }}</dd></dl>{% endif %}{% if product.info %}<section class="product-info"><h2>Thông tin</h2><p>{{ product.info }}</p></section>{% endif %}
-<p class="note">Mã QR sản phẩm chỉ dùng để tra cứu. Bạn có thể quét lại nhiều lần.</p></main></body></html>
+  <body class="confirm-page">
+    <main class="confirm-card product-card">
+      <p class="eyebrow">THÔNG TIN SẢN PHẨM</p>
+      <h1>{{ product.label }}</h1>
+      <p class="confirm-event">Mã sản phẩm: {{ product.referenceId }}</p>
+      <p class="badge ok">Đang lưu hành</p>
+      {% if product.batch %}
+      <dl class="facts">
+        <dt>Mã lô</dt>
+        <dd>{{ product.batch }}</dd>
+      </dl>
+      {% endif %} {% if product.info %}
+      <section class="product-info">
+        <h2>Thông tin</h2>
+        <p>{{ product.info }}</p>
+      </section>
+      {% endif %}
+      <p class="note">
+        Mã QR sản phẩm chỉ dùng để tra cứu. Bạn có thể quét lại nhiều lần.
+      </p>
+    </main>
+  </body>
+</html>
