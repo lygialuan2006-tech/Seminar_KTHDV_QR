@@ -695,6 +695,11 @@ async def check_in(request: Request):
         raise HTTPException(400, "QR payload is required")
     token = body["token"].strip()
     device = normalize_device_id(body.get("deviceId"))
+    selected_event = body.get("eventId")
+    if selected_event is not None and (
+        isinstance(selected_event, bool) or not isinstance(selected_event, int)
+    ):
+        raise HTTPException(400, "Invalid selected event")
     payload, signature = _split_payload(token)
     cfg = _cfg(request)
     public_id = _ticket_public_id(payload, cfg["QR_PUBLIC_BASE_URL"])
@@ -723,6 +728,8 @@ async def check_in(request: Request):
         event = session.get(Event, ticket.event_id)
         if not event or not event.active:
             raise HTTPException(404, "Event not found or inactive")
+        if selected_event is not None and selected_event != event.id:
+            raise HTTPException(403, "Ticket belongs to a different event")
         _check_event_window(event, now)
         if (
             user.role != "admin"

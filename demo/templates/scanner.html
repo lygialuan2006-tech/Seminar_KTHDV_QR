@@ -116,6 +116,7 @@
             },
             body: JSON.stringify({
               token: decoded,
+              eventId: Number(document.getElementById("event").value),
               deviceId: (() => {
                 let i = localStorage.getItem("qr-seminar:device-id");
                 if (!i) {
@@ -130,6 +131,8 @@
           if (r.ok) show("CHECK-IN THÀNH CÔNG · " + d.referenceId, "good");
           else if (r.status === 409) show("VÉ ĐÃ ĐƯỢC SỬ DỤNG", "bad");
           else if (r.status === 410) show("VÉ HẾT HẠN HOẶC ĐÃ THU HỒI", "bad");
+          else if (r.status === 403 && /different event/.test(d.error || ""))
+            show("VÉ THUỘC SỰ KIỆN KHÁC", "bad");
           else if (r.status === 403 && /khoá|khoa/.test(d.error || ""))
             show("QR BỊ KHOÁ VỚI THIẾT BỊ KHÁC", "bad");
           else if (r.status === 401) show("PHIÊN ĐĂNG NHẬP HẾT HẠN", "bad");
