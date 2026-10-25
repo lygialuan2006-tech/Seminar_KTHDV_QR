@@ -51,7 +51,7 @@ Scanner camera chạy trên localhost hoặc origin HTTPS. Trên điện thoại
 7. Admin có thể dùng nút **Xóa lịch sử** để xóa toàn bộ lượt check-in vé và tự điểm danh khỏi thống kê/lịch sử; thao tác này có xác nhận và không thể hoàn tác.
 8. Admin có thể thu hồi vé chưa sử dụng, xem danh sách, thống kê, lịch sử check-in và audit.
 
-Không có reset check-in: reset sẽ vô hiệu hóa bảo đảm dùng một lần. API `/t/{token}` cũ và API resolve/image mang token trên URL trả 410. PRODUCT lookup chuyển sang `POST /api/products/lookup`.
+Không có reset check-in: reset sẽ vô hiệu hóa bảo đảm dùng một lần. PRODUCT lookup dùng `POST /api/products/lookup`.
 
 ## Migration API
 
@@ -60,13 +60,11 @@ Không có reset check-in: reset sẽ vô hiệu hóa bảo đảm dùng một l
 - `POST /api/events` và `PATCH /api/events/{id}/settings` cấu hình vị trí/bán kính, giờ bắt đầu và kết thúc; cần admin session + CSRF.
 - `GET /p/{public_id}` và `GET /api/products/{public_id}` cho phép khách tra cứu PRODUCT công khai, lặp lại.
 - `GET /v/{public_id}` cho người tham dự xem trạng thái và nhập thông tin liên hệ; `POST /api/tickets/public/{public_id}/contact` lưu email/số điện thoại một lần. `GET /api/tickets/public/{public_id}` chỉ trả trạng thái; không check-in.
-- `POST /api/check-ins` cần staff/admin session + CSRF. Body `{ "token": "...", "deviceId": "..." }` nhận token EVENT_CHECKIN cá nhân hoặc URL `/v/{public_id}` để staff xác nhận vé điện tử.
+- `POST /api/check-ins` cần staff/admin session + CSRF. Body `{ "token": "<QR payload>", "deviceId": "...", "eventId": 1 }` nhận token EVENT_CHECKIN cá nhân hoặc URL `/v/{public_id}?s=<hmac>` để staff xác nhận vé điện tử.
 - `DELETE /api/check-ins/history` chỉ admin; xóa lượt check-in và bản ghi tự điểm danh, giữ audit log về thao tác xóa.
 - `/api/stats`, `/api/tickets`, `/api/check-ins` (GET), `/api/audit`, tạo event và thu hồi vé cần admin.
-- `GET /api/qr/resolve/{token}` và `/api/qr/image/{token}` đã bị gỡ bỏ; dùng `POST /api/products/lookup` cho PRODUCT.
-- `POST /api/reset` trả 410. `/t/{token}` trả 410.
 
-Schema mới được tạo bằng `alembic upgrade head`; migration không tự nhập credential từ app RAM cũ. Downgrade phá hủy bị vô hiệu hóa. Không có dữ liệu cũ bền vững để migrate.
+Schema mới được tạo bằng `alembic upgrade head`.
 
 ## Cấu hình chính
 

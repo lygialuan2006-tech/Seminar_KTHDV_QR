@@ -5,10 +5,9 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
-from sqlalchemy.orm import sessionmaker
 
 from app import create_app
-from models import Base, Event, EventStaff, StaffUser, Ticket
+from models import Event, EventStaff, StaffUser, Ticket
 from security import password_hasher, token_digest
 
 DEVICE = "device-alpha-0001"
@@ -202,8 +201,9 @@ def test_no_token_in_url_logs_or_frontend_and_no_public_reset(env, caplog):
     assert token not in response.json().get("url", "")
     assert token not in admin.get("/").text
     assert token not in caplog.text
-    assert admin.post("/api/reset").status_code == 410
-    assert admin.get(f"/t/{token}").status_code == 410
+    # Retired reset / token-in-URL endpoints are gone, not just deprecated.
+    assert admin.post("/api/reset").status_code == 404
+    assert admin.get(f"/t/{token}").status_code == 404
 
 
 def test_product_lookup_uses_body_api_and_legacy_url_is_gone(env):
@@ -339,7 +339,7 @@ def test_dashboard_keeps_authenticated_session_after_csrf_refresh(env):
     app, _, _ = env
     client = TestClient(app)
     login(client)
-    refreshed_csrf = client.get("/api/csrf").json()["csrfToken"]
+    client.get("/api/csrf")
     session = client.get("/api/session")
     assert session.status_code == 200 and session.json()["role"] == "admin"
     assert client.get("/api/stats").status_code == 200
@@ -392,3 +392,18 @@ def test_ticket_qr_is_signed_for_one_device(env):
     assert redeem(staff, staff_csrf, copied).status_code == 403
     assert redeem(staff, staff_csrf, created["qrPayload"]).status_code == 200
     assert redeem(staff, staff_csrf, created["qrPayload"]).status_code == 409
+
+
+def test_digital_ticket_qr_opens_page_and_checkins_on_its_device(env):
+    app, _, event_id = env
+    admin, staff = TestClient(app), TestClient(app)
+    csrf = login(admin)
+    created = issue(admin, csrf, event_id, "DIGITAL_TICKET", ref="DIGITAL-QR").json()
+    # The signed URL must stay browsable, so a phone camera still opens the ticket page.
+    assert created["qrPayload"].startswith(created["publicUrl"] + "?s=")
+    assert staff.get(created["qrPayload"]).status_code == 200
+    staff_csrf = login(staff, "staff", "staff-password-123")
+    assert (
+        redeem(staff, staff_csrf, created["qrPayload"], OTHER_DEVICE).status_code == 403
+    )
+    assert redeem(staff, staff_csrf, created["qrPayload"]).status_code == 200

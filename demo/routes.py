@@ -10,6 +10,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import parse_qs, urlsplit, urlunsplit
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
@@ -100,7 +101,11 @@ def _ticket_json(ticket: Ticket) -> dict[str, Any]:
 
 
 def _split_payload(token: str) -> tuple[str, str | None]:
-    """Split `<payload>.<hmac>`; PRODUCT URLs keep their dots untouched."""
+    """Return (payload, signature); URL payloads carry the HMAC in `?s=`, raw tokens after `.`."""
+    parsed = urlsplit(token)
+    signature = parse_qs(parsed.query).get("s", [None])[0]
+    if signature is not None:
+        return urlunsplit(parsed._replace(query="")), signature
     payload, _, signature = token.rpartition(".")
     if not payload or len(signature) != 16:
         return token, None
@@ -408,12 +413,15 @@ async def create_qr(request: Request):
         path = "p" if qr_type == QrType.PRODUCT else "v"
         public_url = f"{cfg['QR_PUBLIC_BASE_URL']}/{path}/{public_id}"
         qr_content = public_url
-    # Tickets carry an HMAC of token+deviceId so a copied QR fails check-in.
-    qr_payload = (
-        f"{qr_content}.{device_signature(token, device, cfg['SESSION_SECRET'])}"
-        if device
-        else qr_content
-    )
+    # Tickets carry an HMAC over the QR content + deviceId so a copied QR fails check-in.
+    # URLs keep `?s=` so the same QR still opens the public page when scanned by a phone.
+    if device:
+        signature = device_signature(qr_content, device, cfg["SESSION_SECRET"])
+        qr_payload = (
+            f"{qr_content}?s={signature}" if public_id else f"{qr_content}.{signature}"
+        )
+    else:
+        qr_payload = qr_content
     return {
         "token": token,
         "qrPayload": qr_payload,
@@ -557,15 +565,10 @@ async def register_ticket_contact(public_id: str, request: Request):
         or not re.fullmatch(r"[^@\s]+@[^@\s]+\.[A-Za-z]{2,}", email)
     ):
         raise HTTPException(400, "Enter a valid email address")
-    if not isinstance(phone, str):
+    phone = re.sub(r"[\s.-]", "", phone) if isinstance(phone, str) else ""
+    if re.fullmatch(r"0\d{9}", phone) is None:
         raise HTTPException(400, "Enter a valid phone number")
-    phone = phone.strip()
-    phone_match = re.fullmatch(
-        r"(?:0|\+84|84|0084)([35789][0-9]{8})", re.sub(r"[\s().-]", "", phone)
-    )
-    if len(phone) > 32 or phone_match is None:
-        raise HTTPException(400, "Enter a valid phone number")
-    normalized_phone = "+84" + phone_match.group(1)
+    normalized_phone = phone
     with db(request) as session:
         now = datetime.now(timezone.utc)
         ticket = session.scalar(
@@ -924,17 +927,7 @@ def audit_history(request: Request):
         }
 
 
-# --- retired endpoints -----------------------------------------------------
-
-
-@public_router.get("/t/{token}")
-def old_ticket_page(token: str):
-    raise HTTPException(410, "Ticket links were removed; use the authenticated scanner")
-
-
-@public_router.post("/api/reset")
-def reset_removed():
-    raise HTTPException(410, "Reset is removed because it could re-enable used tickets")
+# --- misc ----------------------------------------------------------------
 
 
 @public_router.get("/health")
