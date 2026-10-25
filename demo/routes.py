@@ -561,11 +561,12 @@ async def register_ticket_contact(public_id: str, request: Request):
         raise HTTPException(400, "Enter a valid phone number")
     phone = phone.strip()
     phone_match = re.fullmatch(
-        r"(?:0|\+84|84|0084)([35789][0-9]{8})", re.sub(r"[\s().-]", "", phone)
+        r"(?:0([35789][0-9]{8})|(?:\+84|84|0084)0?([35789][0-9]{8}))",
+        re.sub(r"[\s().-]", "", phone),
     )
     if len(phone) > 32 or phone_match is None:
         raise HTTPException(400, "Enter a valid phone number")
-    normalized_phone = "+84" + phone_match.group(1)
+    normalized_phone = "+84" + (phone_match.group(1) or phone_match.group(2))
     with db(request) as session:
         now = datetime.now(timezone.utc)
         ticket = session.scalar(
