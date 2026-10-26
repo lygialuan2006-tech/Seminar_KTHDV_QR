@@ -194,7 +194,12 @@ def create_staff(
 
 def start_ngrok(port: int, timeout: float = 30.0) -> tuple[subprocess.Popen, str]:
     """Start the ngrok CLI and return its HTTPS URL from the local agent API."""
-    executable = os.getenv("NGROK_EXECUTABLE") or shutil.which("ngrok")
+    local_ngrok = ROOT / ".venv" / "Scripts" / "ngrok.exe"
+    executable = (
+        os.getenv("NGROK_EXECUTABLE")
+        or (str(local_ngrok) if local_ngrok.is_file() else None)
+        or shutil.which("ngrok")
+    )
     if not executable:
         raise SystemExit(
             "--ngrok was passed, but the ngrok CLI was not found in PATH. "
