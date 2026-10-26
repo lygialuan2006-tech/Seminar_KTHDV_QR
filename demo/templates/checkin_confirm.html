@@ -2,10 +2,13 @@
 <html lang="vi">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
     <meta name="color-scheme" content="light" />
     <title>Xác nhận điểm danh</title>
-    <link rel="stylesheet" href="/static/styles.css?v=ios-mobile-1" />
+    <link rel="stylesheet" href="/static/styles.css?v=2" />
   </head>
   <body class="confirm-page">
     <main class="confirm-card">
@@ -13,10 +16,25 @@
       <p class="eyebrow">QR SEMINAR · ĐIỂM DANH</p>
       <h1>Xác nhận tham dự</h1>
       <p class="confirm-event">{{ ticket.eventName }}</p>
-      <p class="confirm-copy">Nhập mã sinh viên của bạn để điểm danh cho sự kiện.{% if ticket.locationRequired %} Trình duyệt sẽ yêu cầu vị trí để kiểm tra bạn đang ở trong khu vực cho phép.{% endif %}</p>
-      <label class="confirm-field">Mã sinh viên<input id="reference" autocomplete="off" required placeholder="Nhập mã sinh viên" /></label>
-      <button id="confirm" class="confirm-button" type="button">Xác nhận check-in</button>
-      <p id="result" class="confirm-result" role="status" aria-live="polite">Mỗi mã sinh viên chỉ điểm danh một lần.{% if ticket.locationRequired %} Vị trí chỉ dùng để kiểm tra khoảng cách.{% endif %}</p>
+      <p class="confirm-copy">
+        Nhập mã sinh viên của bạn để điểm danh cho sự kiện.{% if
+        ticket.locationRequired %} Trình duyệt sẽ yêu cầu vị trí để kiểm tra bạn
+        đang ở trong khu vực cho phép.{% endif %}
+      </p>
+      <label class="confirm-field"
+        >Mã sinh viên<input
+          id="reference"
+          autocomplete="off"
+          required
+          placeholder="Nhập mã sinh viên"
+      /></label>
+      <button id="confirm" class="confirm-button" type="button">
+        Xác nhận check-in
+      </button>
+      <p id="result" class="confirm-result" role="status" aria-live="polite">
+        Mỗi mã sinh viên chỉ điểm danh một lần.{% if ticket.locationRequired %}
+        Vị trí chỉ dùng để kiểm tra khoảng cách.{% endif %}
+      </p>
     </main>
     <script>
       const button = document.getElementById('confirm');

@@ -15,3 +15,7 @@ demo/.pytest_cache/
 .idea/
 .DS_Store
 Thumbs.db
+
+# run.ps1 helper scripts
+demo/_probe_admin.py
+demo/_create_admin.py
